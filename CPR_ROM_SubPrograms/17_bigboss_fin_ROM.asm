@@ -45,15 +45,25 @@ big_boss_fin_level_4_ROM
 	ld 		bc,#bc00+12:out (c),c      			; R12 selectionne
 	ld 		bc,#BD00+#30:out (c),c 				; Ecran en #c000
     
-	ld		hl,tbl_reg1213_fin
+; ----> BUG : même défaut qu'au début d'un level (voir initialisation_du_jeu_ROM_suite) : CRTC en #3000
+;       mais scroll initialisé en #33E0 / #C7C0 -> saut de 9 lignes au premier pas du CRTC.
+;       En plus valeur_offset = #C7C0 servait de départ à affiche_fond : le fond de l'espace était
+;       dessiné à partir de la dernière ligne de caractères de la mémoire écran, à cheval sur la fin
+;       (#FFFF -> #C000), ce que ligne_inf_C000_type1 ne gère pas (elle retombe en #C800 au lieu de
+;       #C000) : la 1ère ligne de l'écran n'était pas redessinée et tout le reste du fond était
+;       décalé d'une ligne de pixels.
+; ----> CORRECTION : même départ que pour un level, entrée #3000 du tableau et haut de l'écran en #C000.
+	ld		hl,tbl_reg1213+2
 	ld		(valeur_crtc),hl
-	ld		hl,#c7c0 
+	ld		hl,#c000
 	ld		(valeur_offset),hl
 	ld		(pointeur_ecran),hl
 
-
+; ----> BUG : le retard vidéo #70 était écrit directement dans l'ASIC : il était effacé dès
+;       l'interruption de la ligne 211, et valeur_retard gardait la valeur du level d'avant.
+; ----> CORRECTION : on le range dans valeur_retard, c'est l'interruption du bas qui l'envoie à l'ASIC.
 	ld		a,TEST_RETARD_VIDEO
-	ld		(#6804),a
+	ld		(valeur_retard),a
 
 	ld		hl,event_test_de_goldorak
 	ld		a,_JP

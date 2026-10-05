@@ -4,9 +4,14 @@ initialisation_du_jeu
 	CALL	initialisation_du_jeu_ROM
 	ld		c,BANK_ROM_2
 	call	rom_on_EI
-	call	nouvelle_ligne
-	
-	
+; ----> BUG : la ligne de tiles affichée ici d'avance en #C7C0 est justement celle que le premier pas
+;       du scroll doit faire apparaitre. Le scroll en affichait une 2ème au dessus avant de bouger le
+;       CRTC : les 2 arrivaient en même temps à l'écran (saut de 9 lignes au début de chaque level).
+; ----> CORRECTION : on ne l'affiche plus d'avance, c'est le premier pas du scroll qui s'en charge
+;       (voir initialisation_du_jeu_ROM_suite).
+	;call	nouvelle_ligne
+
+
 	ld		c,BANK_ROM_2
 	call	rom_on_EI
 	Asic ON

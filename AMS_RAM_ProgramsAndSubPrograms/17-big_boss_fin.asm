@@ -18,8 +18,10 @@ big_boss_fin_level_8
 	RST		ASIC_CONNEXION
 	call	big_boss_fin_level_4_ROM
 	call	affiche_fond
-	call	nouvelle_ligne		; 5 nops
-	call 	scrolling_on 
+; ----> BUG / CORRECTION : même chose que dans initialisation_du_jeu, la ligne de tiles affichée
+;       d'avance faisait sauter le décor de 9 lignes au premier pas du scroll : on ne l'affiche plus ici.
+	;call	nouvelle_ligne		; 5 nops
+	call 	scrolling_on
 	call	rom_off
 
 	jp		boucle_principale

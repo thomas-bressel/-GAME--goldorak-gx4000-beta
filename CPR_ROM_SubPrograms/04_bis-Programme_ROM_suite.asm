@@ -240,9 +240,16 @@ initialisation_du_jeu_ROM_suite
 	ld		a,SCROLL_INIT_RETARD_VIDEO
 	ld		(valeur_retard),a
 
-	ld		hl,tbl_reg1213_fin
+; ----> BUG : le CRTC démarre en #3000 (décor affiché à partir de #C000) mais le scroll était initialisé
+;       comme s'il était déjà en #33E0 (tbl_reg1213_fin, ligne de tiles en #C7C0). Au premier pas du
+;       CRTC on passait donc de #3000 à #33C0 : 2 lignes de tiles d'un coup, le décor sautait de
+;       9 lignes au lieu d'une, 8 trames après le début de chaque level.
+; ----> CORRECTION : on démarre sur la vraie position du CRTC : l'entrée #3000 du tableau et le haut
+;       de l'écran en #C000. Le premier pas passe par "reinit" (#33E0, nouvelle ligne en #C7C0) :
+;       une seule ligne de tiles, comme tous les pas suivants.
+	ld		hl,tbl_reg1213+2
 	ld		(valeur_crtc),hl
-	ld		hl,#c7c0
+	ld		hl,#c000
 	ld		(valeur_offset),hl
 	ld		(pointeur_ecran),hl
 

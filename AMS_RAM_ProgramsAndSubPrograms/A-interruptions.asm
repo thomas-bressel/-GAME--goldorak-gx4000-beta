@@ -138,15 +138,20 @@ automodif_palette_jeu
 	out (c),h    ;-> 4 nops
 	
 	
-event_stop_scroll			ds		3,0
-
-	
 ; retard video
-	ld		a,(vitesse_scroll)
-	ld		b,a
 	ld		a,(valeur_retard)			; nouvelle valeur du retard video
 	ld		(#6804),a
-	sub		a,b					
+
+; ----> BUG : event_stop_scroll (le JP pas_de_scroll_hard posé pendant un boss ou la pause) était placé
+;       AVANT l'écriture du retard vidéo. Scroll arrêté, plus personne ne réécrivait #6804 : il restait
+;       à #00 (la remise à zéro faite ligne 211 pour le HUD). Le décor sautait donc de 1 à 8 lignes
+;       d'un coup à chaque arrêt du scroll (arrivée du golgoth, pause), et dans l'autre sens au redémarrage.
+; ----> CORRECTION : le retard vidéo est réécrit à chaque trame même scroll arrêté, c'est seulement
+;       son avance (et le pas du CRTC) que le JP fait sauter. Le décor s'arrête et repart sans à-coup.
+event_stop_scroll			ds		3,0
+
+	ld		hl,vitesse_scroll
+	sub		a,(hl)
 	jr		c,reinit_scroll
 retour_reinit_scroll
 	ld		(valeur_retard),a
@@ -195,11 +200,19 @@ reinit_scroll
 	dec 	ix : dec ix
 	ld		(valeur_crtc),ix
 
-	
-	
+
+
 	;ld	a,SCROLL_INIT_RETARD_VIDEO
+; ----> BUG : on écrivait ici le retard vidéo #70 tout de suite. Or nouvelle_ligne vient de prendre
+;       6,7 ms : l'interruption partie ligne 254 arrive ici ligne 58 de la trame SUIVANTE, en plein
+;       affichage du décor. Cette trame là doit être affichée en entier avec le retard #00 (R12/R13
+;       écrits juste au dessus ne sont pris en compte par le CRTC qu'à la trame d'après) : avec le
+;       #70 écrit ligne 58, tout le bas du décor remontait de 7 lignes pendant une trame, à chaque
+;       nouvelle ligne de tiles (toutes les 8 trames en scroll lent).
+; ----> CORRECTION : on ne touche plus à #6804 ici. On range seulement #70 dans valeur_retard :
+;       c'est l'interruption du bas de la trame suivante qui l'écrira (ligne 262), pile pour la trame
+;       où le nouveau R12/R13 entre en service.
 	ld	a,TEST_RETARD_VIDEO
-	ld	(#6804),a
 	jp	retour_reinit_scroll
 
 
@@ -227,11 +240,11 @@ reinit								; avant 70 nops. apres
 	ld		bc,#bc00+13: out (c),c ; 3+4 nops
 	ld		bc,#bd00 :out (c),a		; 3+4 nops
 	
-	;ld	(valeur_crtc),hl						;-6 
-	
+	;ld	(valeur_crtc),hl						;-6
+
 	;ld	a,SCROLL_INIT_RETARD_VIDEO
+; ----> CORRECTION : même chose que dans reinit_scroll, on n'écrit plus #6804 en pleine image
 	ld	a,TEST_RETARD_VIDEO
-	ld	(#6804),a
 	jp	retour_reinit_scroll
 
 TEST_RETARD_VIDEO = #70
