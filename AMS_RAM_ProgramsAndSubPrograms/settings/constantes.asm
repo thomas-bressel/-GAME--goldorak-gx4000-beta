@@ -70,6 +70,11 @@ HAUTEUR_CASE	= 41
 SCROLL_SLOW_RETARD_VIDEO		equ	16
 SCROLL_NORMAL_RETARD_VIDEO		equ	32
 SCROLL_FAST_RETARD_VIDEO		equ	48
+; ----> AJOUT : pendant un level la vitesse du scroll suit la hauteur de goldorak (voir
+;       vitesse_scroll_selon_goldorak). Son Y va de 7 (tout en haut) à 195 (tout en bas) :
+;       en dessous de SCROLL_POSY_NORMAL c'est SLOW, entre les 2 seuils NORMAL, au dessus FAST.
+SCROLL_POSY_NORMAL				equ	132
+SCROLL_POSY_FAST				equ	69
 ; ----> BUG : avec 112 (#70) le retard vidéo ne prend que 2 valeurs, #70 puis #00 : le décor avance de
 ;       7 lignes, puis 1, puis 7, puis 1... (4 lignes par trame en moyenne mais ça tremble).
 ; ----> CORRECTION : 64 (#40) -> #70 puis #30 : 4 lignes à chaque trame. Même vitesse moyenne, même

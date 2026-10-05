@@ -1,10 +1,36 @@
 
 ; //////////////////////////////////////////////////////////////////
 ; //////////////////////////////////////////////////////////////////
+; ////////////     VITESSE DU SCROLL SELON GOLDORAK    /////////////
+; //////////////////////////////////////////////////////////////////
+; //////////////////////////////////////////////////////////////////
+; ----> AJOUT : tout en bas de l'écran le décor défile lentement, plus goldorak monte plus il va vite.
+;       Les 2 seuils et les 3 vitesses se règlent dans constantes.asm. vitesse_scroll ne fait qu'un
+;       octet, l'interruption du bas le relit à chaque trame : on peut le changer à tout moment.
+vitesse_scroll_selon_goldorak
+	ld		a,(posy_goldorak)					; goldorak va de 7 (en haut) à 195 (en bas)
+	ld		b,SCROLL_FAST_RETARD_VIDEO
+	cp		a,SCROLL_POSY_FAST
+	jr		c,vitesse_scroll_trouvee			; au dessus du seuil du haut : rapide
+	ld		b,SCROLL_NORMAL_RETARD_VIDEO
+	cp		a,SCROLL_POSY_NORMAL
+	jr		c,vitesse_scroll_trouvee			; entre les 2 seuils : normal
+	ld		b,SCROLL_SLOW_RETARD_VIDEO			; en bas : lent
+vitesse_scroll_trouvee
+	ld		a,b
+	ld		(vitesse_scroll),a
+	ret
+
+; //////////////////////////////////////////////////////////////////
+; //////////////////////////////////////////////////////////////////
 ; //////////////////////     GESTION POWERUP  //////////////////////
 ; //////////////////////////////////////////////////////////////////
 ; //////////////////////////////////////////////////////////////////
 powerup_ROM
+; ----> AJOUT : la vitesse du scroll suit la hauteur de goldorak. C'est fait ici parce que powerup_ROM
+;       est appelée à chaque tour de boucle pendant un level (pas pendant l'arrimage ni dans l'espace,
+;       qui gardent leur vitesse) et qu'il ne reste plus de place en RAM pour un nouvel appel.
+	call	vitesse_scroll_selon_goldorak
 	ld	a,(etp_powerup)
 	cp	a,0
 	jp	z,init_powerup
