@@ -461,7 +461,11 @@ EtpExplosion13
 			ret
 
 fin_bigboss
-	
+; ----> BUG : on arrive ici avec A = 5 (le cp 5 de display_bigboss1). Les évènements n'étaient donc
+;       pas effacés mais remplis de #05, soit trois "dec b" : ça ne tenait que parce que rien ne
+;       se sert de B à cet endroit de la boucle.
+; ----> CORRECTION : on efface vraiment avec des zéros
+	xor	a
 	ld	(event_golgoth),a
 	ld	(event_golgoth+1),a
 	ld	(event_golgoth+2),a

@@ -28,7 +28,28 @@ fondu_de_sortie_ROM
 	RST		ASIC_CONNEXION
 	ld		hl,#000
 	ld		(PALETTE_BORDER),hl
-	
+
+; ----> BUG : la fin du fondu était testée en relisant les 32 octets de la palette dans l'ASIC (#6400)
+;       et en attendant qu'ils soient tous à zéro.
+;       1) sur la vraie machine les 4 bits de poids fort de l'octet du vert ne sont pas câblés : rien
+;          ne garantit qu'ils se relisent à zéro (les émulateurs, eux, renvoient toujours zéro).
+;          Si un seul de ces bits traîne, le fondu ne se termine jamais : le level ne finit pas
+;          après la mort du golgoth.
+;       2) selon l'endroit du balayage l'ASIC contient la palette du décor ou celle du HUD.
+; ----> CORRECTION : on teste la palette en RAM (PALETTE_DECORS_RAM), c'est elle que l'on fait
+;       fondre et on y relit exactement ce que l'on a écrit. Le test est fait AVANT l'étape de
+;       fondu : on sort donc une étape après le passage à zéro, le temps que l'interruption ait
+;       envoyé le noir à l'ASIC (comme avant).
+	ld		b,32
+	ld		hl,PALETTE_DECORS_RAM
+test_fin_du_fondu
+	ld		a,(hl)
+	or		a
+	jr		nz,fondu_de_sortie_des_couleurs
+	inc		hl
+	djnz	test_fin_du_fondu
+	jr		fin_du_fondu_de_sortie
+
 fondu_de_sortie_des_couleurs
 			ld	hl,PALETTE_DECORS_RAM						; emplacement RAM de la pallette ecran
 			ld	de,PALETTE_ASIC						; emplacement ASIC de la pallette ecran NOIRE !
@@ -65,17 +86,9 @@ fondu_de_sortie_des_couleurs
 				inc	hl
 				pop bc
 				djnz bcle_fadeout
-				
-		ld		b,32
-ld		hl,PALETTE_ASIC		
-	test_fin_du_fondu
-		ld		a,(hl)
-		cp		a,0
-		ret		NZ
-		inc		l
-		dec		b
-		jr		nz,test_fin_du_fondu
+				ret
 
+fin_du_fondu_de_sortie
 		xor a
 		ld (alcorakPuzzleStep),a
 		ld (event_alcorak),a

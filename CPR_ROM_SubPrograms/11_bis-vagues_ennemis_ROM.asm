@@ -259,11 +259,22 @@ nouvelle_vague_ROM
 
 fin_de_la_vague_ROM
 ; on efface la vague precedente
+; ----> BUG : avec bc=18 on effaçait les 6 évènements des soucoupes plus UN seul octet de
+;       event_tir_ennemis_1, et rien de event_tir_ennemis_4 ni de event_tir_ennemis_6.
+;       1) le tir de la soucoupe 4 restait donc actif après la vague, et pendant le boss : 50 frames
+;          plus tard il repartait depuis le sprite hard 9 (un morceau du golgoth) en se servant du
+;          sprite hard 12, qui est lui aussi une pièce ou un missile du golgoth -> un bout du boss
+;          se transformait en tir de soucoupe puis disparaissait.
+;       2) de event_tir_ennemis_1 il ne restait que l'adresse du CALL, exécutée comme du code.
+;          Avec l'adresse actuelle de tir_ennemis_1 ça donne deux instructions sans effet, mais il
+;          suffit que la routine change de place dans la RAM pour que ça devienne un saut n'importe où.
+; ----> CORRECTION : on efface en entier les 6 évènements des soucoupes et les 3 évènements de tir
+;       (27 octets, on s'arrête juste avant event_golgoth)
 	xor		a
 	ld		hl,event_enemis
 	ld		(hl),a
 	ld		de,event_enemis+1
-	ld		bc,18
+	ld		bc,event_golgoth+-event_enemis+-1
 	ldir
 	ld		hl,(pointeur_vague_fin)
 	ld		(Pointeur_TblNombreDeSoucoupes),hl

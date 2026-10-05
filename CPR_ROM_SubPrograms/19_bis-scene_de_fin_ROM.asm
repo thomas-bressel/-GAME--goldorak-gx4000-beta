@@ -183,30 +183,51 @@ goAheadBoth_ROM
     call z,theEndOfThisGame
 
 
+; ----> BUG : les deux vaisseaux continuaient de monter pendant tout le fondu de sortie (4 secondes).
+;       Dans l'ASIC la position Y d'un sprite hard n'est codée que sur 9 bits : arrivé à -256 on
+;       repasse à +255. Sur la vraie machine goldorak et l'alcorak ressortaient donc par le bas de
+;       l'écran et le retraversaient plusieurs fois pendant le fondu.
+; ----> CORRECTION : une fois sorti de l'écran (Y en dessous de -64) un vaisseau ne bouge plus
+
 ; on fait partir l'alcorak vers le haut
+    ld a,(alocorak_posY+1)
+    cp a,#FF
+    jr nz,.alcorak_s_en_va          ; Y positif : il est encore à l'écran
+    ld a,(alocorak_posY)
+    cp a,-64
+    jr c,.alcorak_est_parti
+.alcorak_s_en_va
     ld hl,(alocorak_posX)
     dec hl : dec hl
     dec hl : dec hl
-    ld (alocorak_posX),hl  
+    ld (alocorak_posX),hl
 
     ld de,(alocorak_posY)
     dec de : dec de
     dec de : dec de
     dec de : dec de
-    ld (alocorak_posY),de 
+    ld (alocorak_posY),de
     call alcorakMovesUpdate
+.alcorak_est_parti
 
 ; on fait partir goldorak
+    ld a,(posy_goldorak+1)
+    cp a,#FF
+    jr nz,.goldorak_s_en_va
+    ld a,(posy_goldorak)
+    cp a,-64
+    ret c
+.goldorak_s_en_va
     ld hl,(posx_goldorak)
     inc hl : inc hl
     inc hl : inc hl
-    ld (posx_goldorak),hl  
+    ld (posx_goldorak),hl
 
       ld hl,(posy_goldorak)
     dec hl : dec hl
     dec hl : dec hl
     dec hl : dec hl
-    ld (posy_goldorak),hl  
+    ld (posy_goldorak),hl
     call goldorakMovesUpdate
     ret
 

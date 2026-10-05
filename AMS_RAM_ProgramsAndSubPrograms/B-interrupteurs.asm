@@ -73,9 +73,14 @@ music_off
 	
 
 music_on_off
+; ----> BUG : PLY_AKG_Init était lancé interruptions autorisées. Si l'interruption de la ligne 211
+;       tombait au milieu, PLY_AKG_Play travaillait sur un player à moitié initialisé.
+; ----> CORRECTION : on coupe les interruptions le temps de l'init (comme dans change_musique)
+	di
 	ld 		hl,Music
 	ld  	a,MUCIS_NO_MUSIC
 	call 	PLY_AKG_Init
+	ei
 	jp		retour_test_de_CPC_plus
 
 

@@ -268,6 +268,24 @@ initialisation_du_jeu_ROM_suite
 ; ////////////////////////////////////////////////////////////////////////////	
 
 boss_de_fin_ROM
+; ----> BUG : quand un golgoth meurt, les évènements de ses missiles sont effacés en plein vol mais
+;       leurs étapes restent sur "en vol". Les golgoths se partagent les mêmes routines de missiles
+;       (levels 1, 6 et 7 pour missileG1, levels 3, 5 et 8 pour missileG3) : le golgoth suivant
+;       démarrait avec un missile déjà en vol, à l'ancienne position et sans son zoom, donc un
+;       missile invisible qui touchait goldorak. Seul le level 5 remettait ses étapes à zéro.
+; ----> CORRECTION : tous les missiles repartent de zéro à l'arrivée de chaque golgoth
+	xor		a
+	ld		(EtpMissileG1_1),a : ld (flag_updateMissileG1_1),a
+	ld		(EtpMissileG1_2),a : ld (flag_updateMissileG1_2),a
+	ld		(EtpMissileG1_3),a : ld (flag_updateMissileG1_3),a
+	ld		(EtpMissileG1_4),a : ld (flag_updateMissileG1_4),a
+	ld		(EtpMissileG2_1),a : ld (flag_updateMissileG2_1),a
+	ld		(EtpMissileG2_2),a : ld (flag_updateMissileG2_2),a
+	ld		(EtpMissileG2_3),a : ld (flag_updateMissileG2_3),a
+	ld		(EtpMissileG3_1),a : ld (flag_updateMissileG3_1),a
+	ld		(EtpMissileG3_2),a : ld (flag_updateMissileG3_2),a
+	ld		(EtpMissileG3_3),a : ld (flag_updateMissileG3_3),a
+
 	ld		a,1
 	ld		(flag_boss),a
 	ld		a,(level_en_cours)

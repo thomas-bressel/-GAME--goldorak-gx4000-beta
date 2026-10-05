@@ -340,6 +340,13 @@ reinit_poid_faible
 
 game_paused
 call    music_off
+; ----> BUG : en sortant de la pause on relançait toujours le scrolling. Pendant un boss le décor
+;       est arrêté exprès : une pause le faisait repartir et il défilait au delà de la map
+;       (tiles en vrac derrière le golgoth).
+; ----> CORRECTION : on mémorise dans la pile si le scrolling était déjà arrêté avant la pause
+;       (0 = il défile, sinon c'est le JP pas_de_scroll_hard qui est en place)
+	ld		a,(event_stop_scroll)
+	push	af
 call	scrolling_off
 game_paused_boucle
 	ld    b,#f5    			;adresse du port B du PPI
@@ -357,7 +364,9 @@ jp	game_paused_boucle
 
 on_sort_de_pause
 call	music_on
-call scrolling_on
+	pop		af						; on récupère l'état du scrolling d'avant la pause
+	or		a						; 0 = le décor défilait
+call z,scrolling_on
 jp retour_test_des_tirs
 
 ; //////////////////////////////////////////////////////////////////
@@ -429,11 +438,13 @@ game_over
 				; fin du level à partir du moment où goldorak est détruit
 				fin_du_level
 					call	rom_off
-					RST		ASIC_CONNEXION
-					ld		hl,PALETTE_ASIC						; emplacement RAM de la pallette ecran
-					ld		de,PALETTE_DECORS_RAM				; emplacement ASIC de la pallette ecran NOIRE !
-					ld 		bc,#20
-					LDIR
+; ----> BUG : on recopiait ici la palette de l'ASIC (#6400) vers PALETTE_DECORS_RAM avant le fondu.
+;       1) l'ASIC contient la palette du décor OU celle du HUD selon l'endroit où se trouve le
+;          balayage : si goldorak explosait en fin de frame le décor prenait les couleurs du HUD.
+;       2) sur la vraie machine les 4 bits de poids fort de l'octet du vert ne sont pas câblés,
+;          on ne relit pas forcément ce que l'on a écrit.
+; ----> CORRECTION : PALETTE_DECORS_RAM contient déjà la bonne palette (c'est elle que l'interruption
+;       envoie à l'ASIC à chaque frame), on ne relit plus rien dans l'ASIC.
 					RST		ASIC_DECONNEXION
 					ld		a,_CALL						; call
 					ld		(event_fade_out),a
