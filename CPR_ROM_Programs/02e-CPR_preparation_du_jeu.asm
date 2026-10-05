@@ -89,15 +89,8 @@ VBL_init
 	LDIR
 
 test_64k_3
-ld bc,#7fc4
-out (c),c
-
-ld a,(#4000)
-
-ld bc,#7fc0
-out (c),c
-
-cp a,1
+; ----> CORRECTION : on teste la signature complète (voir lecture_flag_alcorak)
+call lecture_flag_alcorak
 jr z,on_copie_palette_alcorak
 
 	ld		hl,PALETTE_HUD							; lecture de la palette du hud
@@ -122,8 +115,16 @@ on_copie_le_programme
 	ld		bc,#4000							; longueur
 	LDIR
 
-
-
+; ----> BUG : le programme en RAM relisait lui même le flag en #4000 de la RAM étendue. Sur un 464 plus
+;       ou une GX4000 (pas de RAM étendue) il lisait donc un octet de l'écran du HUD, au petit bonheur.
+; ----> CORRECTION : c'est ici, et seulement ici, que l'on décide. Le programme vient d'être copié
+;       donc sa variable vaut 0 (goldorak), on la passe à 1 si la signature est présente.
+;       Tout le reste du jeu ne lit plus que flag_on_joue_avec_alcorak.
+	call	lecture_flag_alcorak
+	jr		nz,on_lance_le_jeu
+	ld		a,1
+	ld		(flag_on_joue_avec_alcorak),a
+on_lance_le_jeu
 
 	JP		#8000										; Goldorak, GO !
 

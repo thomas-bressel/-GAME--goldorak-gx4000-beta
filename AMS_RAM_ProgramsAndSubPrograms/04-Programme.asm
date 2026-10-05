@@ -69,35 +69,20 @@ Asic OFF
 
 test_64k_5
 ; test si le jeu est fini et si on rejoue avec goldorak ou alcorak
-ld bc,#7fc4
-out (c),c
+; ----> BUG : on relisait ici le #4000 de la RAM étendue. Sur 464 plus / GX4000 (pas de RAM étendue)
+;       c'est un octet de l'écran du HUD qui était lu.
+; ----> CORRECTION : flag_on_joue_avec_alcorak est déjà renseigné par la cartouche juste après
+;       la copie du programme en RAM (voir preparation_du_jeu), il n'y a plus qu'à le lire.
+	ld		a,(flag_on_joue_avec_alcorak)
+	or		a
+	jr		nz,on_flag_alcorak
 
-ld a,(#4000)
-
-ld bc,#7fc0
-out (c),c
-
-
-cp	a,1
-jr	z,on_flag_alcorak
-
-jr	on_flag_goldorak
-
-
-on_flag_alcorak
-
-	ld		a,1
-	ld		(flag_on_joue_avec_alcorak),a
-	call	affiche_hud_alcorak
-	jr		NOUVEAU_LEVEL
 on_flag_goldorak
-	xor		a
-	ld		(flag_on_joue_avec_alcorak),a
-
 	call	affiche_hud
 	jr		NOUVEAU_LEVEL
+on_flag_alcorak
+	call	affiche_hud_alcorak
 
-	
 
 NOUVEAU_LEVEL
 	ld		hl,#c000

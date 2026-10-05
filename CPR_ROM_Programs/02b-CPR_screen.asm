@@ -9,18 +9,9 @@ ecran_de_depart
 ; on test si on lit ou non l'octet #01 dans la page 1
 ; dans ce cas on passe le screen, le menu et le scenario
 test_64k_2
-ld bc,#7fc4
-out (c),c
-
-; décommenter cette ligne pour jouer avec l'alcorak
-; ld a,1
-; ld (#4000),a
-
-ld a,(#4000)
-
-ld bc,#7fc0
-out (c),c
-cp 	a,1
+; ----> CORRECTION : on ne teste plus un octet à 1 mais la signature complète (voir lecture_flag_alcorak)
+; pour forcer l'alcorak pendant les tests : remplacer le "jp z" par un "jp"
+call	lecture_flag_alcorak
 jp	z,preparation_du_jeu
 
 

@@ -117,7 +117,11 @@ Asic On
 
 ; all colors to black and sprites disabled (DO NOT USE LDIR with a real CPC except if you like the red color ;)
 AsicRazParam
-	ld 		hl,#6000
+; ----> BUG : il y avait deux fois "ld hl" (#6000 puis #6400), le registre DE n'était jamais initialisé.
+;       sur la vraie machine DE contient n'importe quoi à l'allumage : les sprites hard (#6000)
+;       n'étaient donc jamais éteint et 128 zéros partaient au hasard dans la mémoire.
+; ----> CORRECTION : DE cible bien les coordonnées et les zooms des sprites hard
+	ld 		de,#6000
 	ld 		hl,#6400
 	ld 		b,128
 	xor 	a
@@ -150,17 +154,15 @@ asic off
 ; //////////////////////////////////////////////////////////////////
 
 test_64k
-ld bc,#7fc4
-out (c),c
-
-; décommenter cette ligne pour jouer avec l'alcorak
- ld a,0
- ld (#4000),a
-
-
-
-ld bc,#7fc0
-out (c),c
+; ----> BUG : ici on écrivait 0 dans le flag alcorak (#4000 de la RAM étendue) à CHAQUE démarrage.
+;       Or quand le jeu est fini on relance avec un "jp 0" : on repassait donc par ici et le flag
+;       était effacé juste avant d'être lu. On ne pouvait jamais rejouer avec l'alcorak.
+;       Ce zéro avait été mis parce que sur la vraie machine la RAM étendue contient n'importe quoi
+;       à l'allumage (les émulateurs la remplissent de zéros) et l'alcorak sortait dès la 1ère partie.
+; ----> CORRECTION : on n'efface plus rien ici. Le flag n'est plus un simple octet à 1 mais une signature
+;       de 4 octets ("ALCO") écrite à la fin du jeu : la RAM en vrac de l'allumage ne peut pas lui ressembler,
+;       et elle survit au "jp 0" car la remise à zéro ci-dessus ne touche que les 64ko de la RAM centrale.
+;       voir lecture_flag_alcorak (02a-CPR_creation.asm) et Fin (02f-CPR_fin.asm)
 
 
 

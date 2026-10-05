@@ -278,6 +278,33 @@ reinit_crtc_et_retard_video
 	ret
 
 
+; //////////////////////////////////////////////////////////////////
+; //////////////////////////////////////////////////////////////////
+; //////////   FLAG ALCORAK DANS LA RAM ETENDUE (128 ko)   /////////
+; //////////////////////////////////////////////////////////////////
+; //////////////////////////////////////////////////////////////////
+; en sortie : flag Z à 1 = le jeu a été fini, on rejoue avec l'alcorak
+;
+; sur un 464 plus ou une GX4000 il n'y a pas de RAM étendue : le #7FC4 ne fait rien et on lit
+; la RAM centrale. Aux deux endroits où cette routine est appelée elle contient soit des 0
+; (remise à zéro du démarrage) soit des #C0 (preparation_du_jeu), jamais la signature :
+; on joue donc toujours avec goldorak sur ces machines.
+lecture_flag_alcorak
+	Asic OFF								; ASIC déconnecté, sinon c'est lui qui répond en #4000
+	ld		bc,#7fc4:out (c),c				; on connecte la RAM étendue en #4000
+	ld		hl,FLAG_ALCORAK_ADR
+	ld		a,(hl):cp a,FLAG_ALCORAK_SIGNATURE_1:jr nz,.fin
+	inc		hl
+	ld		a,(hl):cp a,FLAG_ALCORAK_SIGNATURE_2:jr nz,.fin
+	inc		hl
+	ld		a,(hl):cp a,FLAG_ALCORAK_SIGNATURE_3:jr nz,.fin
+	inc		hl
+	ld		a,(hl):cp a,FLAG_ALCORAK_SIGNATURE_4
+.fin
+	ld		bc,#7fc0:out (c),c				; on revient sur la RAM centrale (ni ld ni out ne touchent au flag Z)
+	ret
+
+
 BufCurseurMenu				equ		#8110
 
 

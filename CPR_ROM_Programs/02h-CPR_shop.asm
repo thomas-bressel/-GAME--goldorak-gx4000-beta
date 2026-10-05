@@ -655,14 +655,9 @@ PreparationLevelSuivant
 				LDIR
 
 test_64k_4
-ld bc,#7fc4
-out (c),c
-
-ld a,(#4000)
-
-ld bc,#7fc0
-out (c),c
-
+; ----> BUG : sur 464 plus / GX4000 le #4000 lu ici est un octet de l'écran (pas de RAM étendue)
+; ----> CORRECTION : on lit la variable du programme, renseignée une fois pour toute par preparation_du_jeu
+ld a,(flag_on_joue_avec_alcorak)
 cp a,1
 jr z,on_copie_palette_alcorak2
 

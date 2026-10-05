@@ -18,4 +18,12 @@ ALCORAK_PUZZLE_6        equ ALCORAK_PUZZLE_START + #500
 ALCORAK_PUZZLE_7        equ ALCORAK_PUZZLE_START + #600
 ALCORAK_PUZZLE_8        equ ALCORAK_PUZZLE_START + #700
 
+; flag "le jeu est fini, on rejoue avec l'alcorak" logé dans la RAM étendue du 6128 plus (#7FC4)
+; c'est une signature de 4 octets : la RAM en vrac de l'allumage ne peut pas lui ressembler
+FLAG_ALCORAK_ADR            equ #4000
+FLAG_ALCORAK_SIGNATURE_1    equ #41     ; "A"
+FLAG_ALCORAK_SIGNATURE_2    equ #4C     ; "L"
+FLAG_ALCORAK_SIGNATURE_3    equ #43     ; "C"
+FLAG_ALCORAK_SIGNATURE_4    equ #4F     ; "O"
+
 

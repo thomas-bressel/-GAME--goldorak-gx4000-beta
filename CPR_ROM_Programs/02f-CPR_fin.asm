@@ -2,10 +2,19 @@
 Fin
 
 
+; ----> BUG : on écrivait un seul octet à 1. Sur la vraie machine la RAM étendue n'est pas vide à
+;       l'allumage, impossible de distinguer "le jeu vient d'être fini" de "la machine vient de s'allumer".
+; ----> CORRECTION : on écrit une signature de 4 octets, relue par lecture_flag_alcorak
+;       On déconnecte d'abord l'ASIC : s'il est connecté c'est lui qui répond en #4000 et la
+;       signature partirait dans le sprite hard 0 au lieu de la RAM étendue.
+Asic OFF
 ld bc,#7fc4
 out (c),c
-ld a,1
-ld (#4000),a
+ld hl,FLAG_ALCORAK_ADR
+ld (hl),FLAG_ALCORAK_SIGNATURE_1 : inc hl
+ld (hl),FLAG_ALCORAK_SIGNATURE_2 : inc hl
+ld (hl),FLAG_ALCORAK_SIGNATURE_3 : inc hl
+ld (hl),FLAG_ALCORAK_SIGNATURE_4
 
 ld bc,#7fc0
 out (c),c
