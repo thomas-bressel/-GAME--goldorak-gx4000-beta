@@ -313,8 +313,22 @@ fin_de_la_vague_ROM
 	ld		de,MINIBOSS_LEVEL_1
 	or		a
 	sbc		hl,de
+	ld		hl,MINIBOSS_SPRH_ADR_ROM			; ses 2 images (ld ne touche pas aux flags)
+	ld		de,MINIBOSS_SPRH_ADR_ROM_ANIM2
+	jr		z,mini_boss_arrive
+; le 2ème mini boss (le monstre rouge, une seule image) : label MINIBOSS2_LEVEL_1
+	ld		hl,(Pointeur_TblNombreDeSoucoupes)
+	ld		de,MINIBOSS2_LEVEL_1
+	or		a
+	sbc		hl,de
 	ret		nz
+	ld		hl,MINIBOSS2_SPRH_ADR_ROM
+	ld		e,l
+	ld		d,h
 mini_boss_arrive
+	ld		(GolgothAdrRom),hl
+	ld		(Tbl_Golgoth_anim+2),hl
+	ld		(Tbl_Golgoth_anim),de
 	xor		a
 	ld		(EtpMissileG1_1),a : ld (flag_updateMissileG1_1),a
 	ld		(EtpMissileG1_2),a : ld (flag_updateMissileG1_2),a
@@ -338,11 +352,6 @@ mini_boss_arrive
 	ld		(id_soucoupe),a
 	ld		a,MINIBOSS_PV
 	ld		(point_vie_golgoth),a
-	ld		hl,MINIBOSS_SPRH_ADR_ROM
-	ld		(GolgothAdrRom),hl
-	ld		(Tbl_Golgoth_anim+2),hl
-	ld		hl,MINIBOSS_SPRH_ADR_ROM_ANIM2
-	ld		(Tbl_Golgoth_anim),hl
 	ld		hl,SPRH6_ADR
 	ld		(GolgothSprh),hl
 	ld		hl,#400

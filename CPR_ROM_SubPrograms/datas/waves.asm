@@ -46,6 +46,8 @@ MINIBOSS_LEVEL_1
  	dw		vague4s,vague4e,soucoupe_3,soucoupe_6,0
  	dw		vague5s,vague5e,soucoupe_2,soucoupe_3,0
  	dw		vague6s,vague6e,soucoupe_1,soucoupe_6,0
+; ----> le 2ème mini boss (le monstre rouge) arrive juste avant cette vague
+MINIBOSS2_LEVEL_1
  	dw		vague7s,vague7e,soucoupe_4,soucoupe_5,0
 
  	dw		vague8s,vague8e,soucoupe_1,soucoupe_2,soucoupe_3,0

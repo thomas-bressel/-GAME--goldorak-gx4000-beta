@@ -91,6 +91,7 @@ CADANCE_TIR_4_GOLGOTH3			equ		4
 ;       chaque image = 4 sprites (haut gauche, haut droite, bas gauche, bas droite) + 1 missile
 MINIBOSS_SPRH_ADR_ROM			equ		#C000
 MINIBOSS_SPRH_ADR_ROM_ANIM2		equ		#C500
+MINIBOSS2_SPRH_ADR_ROM			equ		#CA00		; le monstre rouge (Sources/gfx/miniboss2.png)
 MINIBOSS_PV						equ		PV_GOLGOTH_1/2		; moitié moins que le boss du level
 MINIBOSS_POSY					equ		40
 MINIBOSS_VITESSE				equ		12
