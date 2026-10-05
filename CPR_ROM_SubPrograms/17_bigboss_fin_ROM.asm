@@ -29,6 +29,12 @@ big_boss_fin_level_4_ROM
        ; on indique l'adresse du premier numéro de tile à afficher
 	ld		hl,SCREEN_DEPART_LEVEL_SPACE+(-16*13)		; je pointe sur la première tile de la ligne à afficher
 	ld		(pointeur_de_tile),hl
+; ----> AJOUT : bouclage de la map (voir nouvelle_ligne). La map de l'espace ne commence pas au
+;       début de sa bank : on donne sa 1ère rangée et l'adresse qui suit sa dernière rangée.
+	ld		hl,DEBUT_MAP_SPACE
+	ld		(automodif_debut_map+1),hl
+	ld		hl,SCREEN_DEPART_LEVEL_SPACE+16
+	ld		(automodif_fin_map+1),hl
 
 
 		ld		a,MUSIC_BIGBOSS1	

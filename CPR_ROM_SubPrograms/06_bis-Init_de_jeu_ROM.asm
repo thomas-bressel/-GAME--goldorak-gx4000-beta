@@ -271,6 +271,17 @@ ld  (pointer_tbl_retournement),hl
 	ld (display_tbl_retournement_bot),a
 	ld  (pointer_tbl_retournement),hl
 
+; ----> AJOUT : bouclage de la map (voir nouvelle_ligne). On lui donne les 2 adresses de la map du
+;       nouveau level : sa 1ère rangée (là où elle boucle) et l'adresse qui suit sa dernière rangée
+;       (là d'où elle repart). L'écran de départ fait 14 rangées de 16 tiles à partir de
+;       adr_screen_level, la map se termine juste derrière.
+	ld		hl,DEBUT_MAP_LEVEL
+	ld		(automodif_debut_map+1),hl
+	ld		hl,(adr_screen_level)
+	ld		de,TILES_NBR_RANGEES*TILES_NBR_COLONNES
+	add		hl,de
+	ld		(automodif_fin_map+1),hl
+
 ; on désactive les évenements de la boucle	
 	xor		a						; on va remplir de zero
 	ld		hl,event_fade_out		; les evenements qui sont

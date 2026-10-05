@@ -110,6 +110,15 @@ SCREEN_LEVEL_8			equ		#FDA0
 SCREEN_DEPART_LEVEL_SPACE	equ		#FF8E
 SCREEN_LEVEL_SPACE			equ		#FEBE
 
+; ----> AJOUT : bouclage de la map (voir nouvelle_ligne). Adresse de la 1ère rangée de la map, c'est
+;       à dire le bout du level : arrivé là le scroll repart de la dernière rangée (celle du départ).
+;       Les maps des 8 levels sont rangées au début de leur bank. Celle de l'espace est rangée
+;       derrière le sample go.spl : on la retrouve avec le nombre de rangées de goldospace.prg
+;       (8784 octets / 16 tiles), à mettre à jour si la map de l'espace change de longueur.
+DEBUT_MAP_LEVEL				equ		#C000
+NBR_RANGEES_MAP_SPACE		equ		549
+DEBUT_MAP_SPACE				equ		SCREEN_DEPART_LEVEL_SPACE+16+(-16*NBR_RANGEES_MAP_SPACE)
+
 TILES_NBR_RANGEES		equ 14
 TILES_NBR_COLONNES		equ	16
 TILES_HAUTEUR			equ	16

@@ -289,6 +289,25 @@ bloc2
 	ld		a,#09				; 09
 	ld		(automodif_bloc+3),a
 	ld		hl,(pointeur_de_tile)
+; ----> AJOUT : bouclage de la map. On est ici au début d'une nouvelle rangée de tiles, et
+;       pointeur_de_tile pointe sur la dernière rangée affichée. Si c'est la 1ère rangée de la map
+;       (le bout du level) il n'y a plus rien au dessus : avant on continuait à lire en dessous du
+;       début de la map (pour un level : sous #C000, dans la RAM du programme) et le décor se
+;       remplissait de tiles en vrac. Maintenant on repart juste derrière la dernière rangée de la
+;       map : c'est elle (le bas de l'écran de départ) qui s'affiche au dessus de la 1ère, puis
+;       toute la map défile à nouveau. Seul le JP posé dans event_stop_scroll (arrivée du boss,
+;       pause) arrête le défilement.
+;       Les 2 adresses ci-dessous sont celles du level 1, elles sont modifiées à chaque nouveau
+;       level (voir suite_init_level) et pour l'espace (voir big_boss_fin_level_4_ROM).
+automodif_debut_map
+	ld		de,DEBUT_MAP_LEVEL				; adresse de la 1ère rangée de la map
+	or		a
+	sbc		hl,de
+	add		hl,de							; on retrouve hl, le flag Z de la soustraction n'est pas touché
+	jr		nz,pas_fin_de_map
+automodif_fin_map
+	ld		hl,SCREEN_DEPART_LEVEL_1+16		; adresse qui suit la dernière rangée de la map
+pas_fin_de_map
 	ld		bc,-16
 	add		hl,bc
 	ld		(pointeur_de_tile),hl
