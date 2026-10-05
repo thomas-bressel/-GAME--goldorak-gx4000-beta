@@ -26,7 +26,7 @@ LGN_INTERRUPTION_BAS			equ		254
 ;       les couleurs du HUD (le liseré au dessus du HUD).
 ; ----> CORRECTION : 212 : le retard vidéo est remis à zéro pendant la ligne 213, la dernière du décor,
 ;       et la palette est envoyée à cheval sur la rupture (avec 213 le retard tombe sur la 1ère ligne du HUD).
-LGN_INTERRUPTION_HUD			equ		212
+LGN_INTERRUPTION_HUD			equ		213
 LGN_RUPTURE_HUD					equ		214
 
 

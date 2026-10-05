@@ -4,21 +4,26 @@
 ; //////////////////////////////////////////////////////////////////
 ; //////////////////////////////////////////////////////////////////
 interruption_ligne_190
-; sauvegarde des registres
-	push af : push hl : push de
-	push bc : push ix : push iy
-exx
-	push hl : push de
-	push bc
-exx
-
+; ----> BUG : le retard vidéo était remis à zéro après la sauvegarde de tous les registres, donc en
+;       plein affichage d'une ligne du décor : cette ligne (et la suivante quand l'interruption partait
+;       ligne 211) s'affichait décalée, c'est le liseré au dessus du HUD.
+; ----> CORRECTION : l'interruption part sur la dernière ligne du décor (213) et la remise à zéro est
+;       la toute première chose faite, pendant le retour du balayage : elle ne sert que pour le HUD.
+	push af : push bc
 ; connexion ASIC
 	ld		bc,#7F00+%10111000			 
 	out 	(c),c
 ; retard video
-		
 	xor 	a					; retard video remis à zero
 	ld		(#6804),a
+; sauvegarde des autres registres
+	push hl : push de
+	push ix : push iy
+exx
+	push hl : push de
+	push bc
+exx
+	xor		a
 ; le crtc ayant changé de zone écran il faut re calculer l'offset	
 	ld		(SPRH0_ZOOM),a
 	ld		(SPRH1_ZOOM),a
@@ -62,8 +67,9 @@ automodif_palette_hud
 	exx
 	pop bc : pop de : pop hl
 	exx
-	pop iy : pop ix : pop bc
-	pop de : pop hl : pop af
+	pop iy : pop ix
+	pop de : pop hl
+	pop bc : pop af
 	ei
 	ret	
 	
