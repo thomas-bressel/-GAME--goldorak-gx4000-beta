@@ -1,6 +1,12 @@
 big_boss_fin_level_4_ROM
 	xor		a						; on va remplir de zero
 	ld		(etape_config_bigboss),a
+; ----> BUG : bloc_tile (la moitié de tile à afficher : 0 = celle du bas, 1 = celle du haut) n'était
+;       pas remis à zéro comme au début d'un level. Si le scroll du level s'était arrêté au milieu
+;       d'une rangée de tiles, la 1ère rangée de l'espace n'affichait que sa moitié haute, collée
+;       au fond de départ (on ne le voit pas : l'écran est encore noir à ce moment là du fondu).
+; ----> CORRECTION : on repart sur la moitié du bas, comme dans initialisation_du_jeu_ROM
+	ld		(bloc_tile),a
 	
 ; on désactive les évenements de la boucle	
 	ld		hl,event_fade_out		; les evenements qui sont
