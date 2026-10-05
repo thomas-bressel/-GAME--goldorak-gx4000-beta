@@ -4,26 +4,17 @@
 ; //////////////////////////////////////////////////////////////////
 ; //////////////////////////////////////////////////////////////////
 interruption_ligne_190
-; ----> BUG : le retard vidéo était remis à zéro après la sauvegarde de tous les registres, donc en
-;       plein affichage d'une ligne du décor : cette ligne (et la suivante quand l'interruption partait
-;       ligne 211) s'affichait décalée, c'est le liseré au dessus du HUD.
-; ----> CORRECTION : l'interruption part sur la dernière ligne du décor (213) et la remise à zéro est
-;       la toute première chose faite, pendant le retour du balayage : elle ne sert que pour le HUD.
-	push af : push bc
-; connexion ASIC
-	ld		bc,#7F00+%10111000			 
-	out 	(c),c
-; retard video
-	xor 	a					; retard video remis à zero
-	ld		(#6804),a
-; sauvegarde des autres registres
-	push hl : push de
-	push ix : push iy
+; sauvegarde des registres
+	push af : push hl : push de
+	push bc : push ix : push iy
 exx
 	push hl : push de
 	push bc
 exx
-	xor		a
+; connexion ASIC
+	ld		bc,#7F00+%10111000			 
+	out 	(c),c
+	xor 	a
 ; le crtc ayant changé de zone écran il faut re calculer l'offset	
 	ld		(SPRH0_ZOOM),a
 	ld		(SPRH1_ZOOM),a
@@ -51,6 +42,17 @@ automodif_palette_hud
 	ld		hl,PALETTE_HUD_RAM						; lecture de la palette du hud
 	ld		de,PALETTE_ASIC						; ecriture
 	ld		bc,32							; longueur
+; ----> BUG : le retard vidéo était remis à zéro dès l'entrée de l'interruption (ligne 211) : les
+;       lignes 212 et 213 du décor s'affichaient décalées, c'est le liseré au dessus du HUD.
+; ----> CORRECTION : il est remis à zéro ici, après l'extinction des zooms : on est alors au début de
+;       la ligne 213, la dernière du décor, et le changement ne vaut que pour le HUD (ligne 214).
+;       La petite attente sert à tomber dans le bord droit de la ligne 213, hors de l'image :
+;       HUD_ATTENTE_RETARD se règle à l'oeil (1 de plus = 4 microsecondes plus tard, 16 = 1 ligne).
+	ld		b,HUD_ATTENTE_RETARD
+attente_retard_hud
+	djnz	attente_retard_hud
+	xor 	a					; retard video remis à zero
+	ld		(#6804),a
 	LDIR						; #ED #B0
 ; remise en place de l'asic
 	ld		a,(valeur_asic)
@@ -67,9 +69,8 @@ automodif_palette_hud
 	exx
 	pop bc : pop de : pop hl
 	exx
-	pop iy : pop ix
-	pop de : pop hl
-	pop bc : pop af
+	pop iy : pop ix : pop bc
+	pop de : pop hl : pop af
 	ei
 	ret	
 	

@@ -21,12 +21,9 @@ SHOP_SCREEN_ADR         equ     #E540
 ; ///////////        INTERRUPTION ET RUPTURE            ////////////
 ; //////////////////////////////////////////////////////////////////
 LGN_INTERRUPTION_BAS			equ		254
-; ----> BUG : avec 211 l'interruption du HUD remettait le retard vidéo à zéro et changeait la palette
-;       3 lignes avant la rupture (214) : les 2 dernières lignes du décor s'affichaient décalées et avec
-;       les couleurs du HUD (le liseré au dessus du HUD).
-; ----> CORRECTION : 212 : le retard vidéo est remis à zéro pendant la ligne 213, la dernière du décor,
-;       et la palette est envoyée à cheval sur la rupture (avec 213 le retard tombe sur la 1ère ligne du HUD).
-LGN_INTERRUPTION_HUD			equ		213
+LGN_INTERRUPTION_HUD			equ		211
+; attente avant de remettre le retard vidéo à zéro dans l'interruption du HUD (voir interruption_ligne_190)
+HUD_ATTENTE_RETARD				equ		7
 LGN_RUPTURE_HUD					equ		214
 
 
