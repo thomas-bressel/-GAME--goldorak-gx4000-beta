@@ -76,6 +76,13 @@ SCROLL_FAST_RETARD_VIDEO		equ	48
 ;       vitesse_scroll_selon_goldorak). Son Y va de 7 (tout en haut) à 195 (tout en bas) :
 ;       en dessous de SCROLL_POSY_NORMAL c'est SLOW, puis NORMAL, puis FAST, et au dessus de
 ;       SCROLL_POSY_VERY_FAST c'est VERY_FAST (4 vitesses).
+;       goldorak avance de 4 lignes par pas et attend en Y = 103 après l'arrimage : c'est la vitesse
+;       de croisière (NORMAL). On pousse vers le haut pour accélérer, on tire vers le bas pour freiner.
+;       SLOW = le bas de l'écran (Y 191 à 151), NORMAL = autour de la position de départ (Y 147 à 87),
+;       FAST = plus haut (Y 83 à 47), VERY_FAST = les 10 derniers pas tout en haut (Y 43 à 7).
+SCROLL_POSY_NORMAL				equ	150
+SCROLL_POSY_FAST				equ	86
+SCROLL_POSY_VERY_FAST			equ	46
 ;       goldorak avance de 4 lignes par pas : SLOW = tout en bas avec 3 pas de marge (Y 191 à 179),
 ;       NORMAL = les 6 pas juste au dessus (Y 175 à 155), FAST = les 6 pas suivants (Y 151 à 131),
 ;       VERY_FAST = tout le haut de l'écran (Y 127 à 7).
