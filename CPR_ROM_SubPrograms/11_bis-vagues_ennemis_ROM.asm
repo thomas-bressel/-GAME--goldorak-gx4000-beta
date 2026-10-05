@@ -307,28 +307,47 @@ fin_de_la_vague_ROM
 	ld		hl,Tbl_VALEUR_TIMER_soucoupes
 	ld		bc,6
 	LDIR
-; ----> AJOUT : mini boss. Si la vague suivante est celle qui porte le label MINIBOSS_LEVEL_1 dans
-;       waves.asm, le mini boss arrive d'abord (pour le déplacer il suffit de déplacer le label).
-	ld		hl,(Pointeur_TblNombreDeSoucoupes)
-	ld		de,MINIBOSS_LEVEL_1
+; ----> AJOUT : mini boss. Si la vague suivante porte un label rangé dans Tbl_apparitions_miniboss
+;       (les labels MINIBOSS_Lx sont dans waves.asm), un mini boss arrive d'abord.
+	ld		de,(Pointeur_TblNombreDeSoucoupes)
+	ld		hl,Tbl_apparitions_miniboss
+cherche_miniboss
+	ld		c,(hl)
+	inc		hl
+	ld		b,(hl)
+	inc		hl
+	ld		a,b
+	or		c
+	ret		z								; fin du tableau : pas de mini boss ici
+	ld		a,(hl)							; son type
+	inc		hl
+	push	hl
+	ld		l,c
+	ld		h,b
 	or		a
 	sbc		hl,de
-	ld		hl,MINIBOSS_SPRH_ADR_ROM			; ses 2 images (ld ne touche pas aux flags)
-	ld		de,MINIBOSS_SPRH_ADR_ROM_ANIM2
-	jr		z,mini_boss_arrive
-; le 2ème mini boss (le monstre rouge, une seule image) : label MINIBOSS2_LEVEL_1
-	ld		hl,(Pointeur_TblNombreDeSoucoupes)
-	ld		de,MINIBOSS2_LEVEL_1
-	or		a
-	sbc		hl,de
-	ret		nz
+	pop		hl
+	jr		nz,cherche_miniboss
+; A = 1 : le mini boss 1 (vaisseau bleu), 2 : le mini boss 2 (monstre rouge), 3 : le 1 puis le 2 à la suite
+mini_boss_arrive
+	ld		c,a
 	ld		hl,MINIBOSS2_SPRH_ADR_ROM
 	ld		e,l
 	ld		d,h
-mini_boss_arrive
+	cp		2
+	jr		z,mini_boss_images
+	ld		hl,MINIBOSS_SPRH_ADR_ROM
+	ld		de,MINIBOSS_SPRH_ADR_ROM_ANIM2
+mini_boss_images
 	ld		(GolgothAdrRom),hl
 	ld		(Tbl_Golgoth_anim+2),hl
 	ld		(Tbl_Golgoth_anim),de
+	ld		a,c
+	cp		3
+	jr		z,mini_boss_type_ok				; 3 : à sa mort le mini boss 2 prendra la suite
+	ld		a,1
+mini_boss_type_ok
+	ld		(flag_miniboss),a
 	xor		a
 	ld		(EtpMissileG1_1),a : ld (flag_updateMissileG1_1),a
 	ld		(EtpMissileG1_2),a : ld (flag_updateMissileG1_2),a
@@ -342,7 +361,6 @@ mini_boss_arrive
 	ld		(Compteur_DistanceGolgoth_1),a
 	inc		a
 	ld		(flag_boss),a
-	ld		(flag_miniboss),a
 ; ses évènements dans la boucle : les mêmes que le golgoth 1, sauf ses sprites qui sont en bank 11
 	ld		hl,Tbl_events_miniboss
 	ld		de,event_golgoth
@@ -350,7 +368,13 @@ mini_boss_arrive
 	LDIR
 	ld		a,7
 	ld		(id_soucoupe),a
-	ld		a,MINIBOSS_PV
+; moitié moins de points de vie que le golgoth du level en cours
+	ld		a,(level_en_cours)
+	ld		e,a
+	ld		d,0
+	ld		hl,Tbl_PV_miniboss+-1
+	add		hl,de
+	ld		a,(hl)
 	ld		(point_vie_golgoth),a
 	ld		hl,SPRH6_ADR
 	ld		(GolgothSprh),hl
@@ -381,5 +405,27 @@ Tbl_events_miniboss
 	db	_CALL : dw Update_missileG1_3
 	db	_CALL : dw missileG1_4
 	db	_CALL : dw Update_missileG1_4
+Tbl_PV_miniboss
+	db	PV_GOLGOTH_1/2,PV_GOLGOTH_2/2,PV_GOLGOTH_3/2,PV_GOLGOTH_4/2,PV_GOLGOTH_5/2,PV_GOLGOTH_6/2,PV_GOLGOTH_7/2,PV_GOLGOTH_8/2
+; où arrivent les mini boss : dw label de la vague qui suit (dans waves.asm), db type (1, 2, ou 3 = le 1 puis le 2)
+Tbl_apparitions_miniboss
+	dw	MINIBOSS_L1 : db 1				; level 1, 2 et 3 : le mini boss 1 au milieu
+	dw	MINIBOSS_L2 : db 1
+	dw	MINIBOSS_L3 : db 1
+	dw	MINIBOSS_L4 : db 2				; level 4 : le mini boss 2 au milieu
+	dw	MINIBOSS_L5_A : db 1			; level 5, 6 et 7 : le 1 au premier tiers, le 2 au deuxième tiers
+	dw	MINIBOSS_L5_B : db 2
+	dw	MINIBOSS_L6_A : db 1
+	dw	MINIBOSS_L6_B : db 2
+	dw	MINIBOSS_L7_A : db 1
+	dw	MINIBOSS_L7_B : db 2
+	dw	MINIBOSS_L8 : db 3				; level 8 : le 1 puis le 2 à la suite, juste avant le boss final
+	dw	0
+; le mini boss 2 qui prend la suite du 1 (appelé par powerup_ROM quand flag_miniboss = 2)
+mini_boss_2_arrive
+	rst		ASIC_CONNEXION
+	ld		a,2
+	call	mini_boss_arrive
+	jp		ASIC_DECONNEXION
 	ret 
 

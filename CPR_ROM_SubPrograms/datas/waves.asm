@@ -44,15 +44,13 @@ TBL_NBR_SOUCOUPES
  	dw		vague4s,vague4e,soucoupe_3,soucoupe_6,0
  	dw		vague5s,vague5e,soucoupe_2,soucoupe_3,0
  	dw		vague6s,vague6e,soucoupe_1,soucoupe_6,0
-; ----> le 2ème mini boss (le monstre rouge) arrive juste avant cette vague
-MINIBOSS2_LEVEL_1
  	dw		vague7s,vague7e,soucoupe_4,soucoupe_5,0
 
  	dw		vague8s,vague8e,soucoupe_1,soucoupe_2,soucoupe_3,0
  	dw		vague9s,vague9e,soucoupe_4,soucoupe_5,soucoupe_6,0
  	dw		vague10s,vague10e,soucoupe_1,soucoupe_3,soucoupe_5,0
-; ----> le mini boss arrive juste avant cette vague (voir mini_boss_arrive)
-MINIBOSS_LEVEL_1
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L1
  	dw		vague11s,vague11e,soucoupe_2,soucoupe_4,soucoupe_6,0
  	dw		vague12s,vague12e,soucoupe_3,soucoupe_4,soucoupe_5,0
 
@@ -125,6 +123,8 @@ TBL_NBR_SOUCOUPES2
  	dw		vague10s,vague10e,soucoupe_2,soucoupe_3,soucoupe_4,0
 
  	dw		vague11s,vague11e,soucoupe_1,soucoupe_3,soucoupe_5,soucoupe_6,0
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L2
  	dw		vague12s,vague12e,soucoupe_2,soucoupe_4,soucoupe_5,soucoupe_6,0
  	dw		vague13s,vague13e,soucoupe_1,soucoupe_2,soucoupe_3,soucoupe_4,0
  	dw		vague14s,vague14e,soucoupe_2,soucoupe_3,soucoupe_4,soucoupe_5,0
@@ -205,6 +205,8 @@ TBL_NBR_SOUCOUPES3
 
  	dw		vague13s,vague13e,soucoupe_2,soucoupe_3,soucoupe_4,soucoupe_6,0
  	dw		vague14s,vague14e,soucoupe_1,soucoupe_2,soucoupe_5,soucoupe_6,0
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L3
  	dw		vague15s,vague15e,soucoupe_1,soucoupe_2,soucoupe_3,soucoupe_5,0
  	dw		vague16s,vague16e,soucoupe_2,soucoupe_4,soucoupe_5,soucoupe_6,0
  	dw		vague17s,vague17e,soucoupe_1,soucoupe_3,soucoupe_4,soucoupe_5,0
@@ -302,6 +304,8 @@ TBL_NBR_SOUCOUPES3
  	dw		vague16s,vague16e,soucoupe_1,soucoupe_2,soucoupe_5,0
 
 	dw		vague17s,vague17e,soucoupe_4,soucoupe_5,soucoupe_6,0
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L4
  	dw		vague18s,vague18e,soucoupe_1,soucoupe_2,soucoupe_3,0
  	dw		vague19s,vague19e,soucoupe_2,soucoupe_3,soucoupe_4,0
 
@@ -396,6 +400,8 @@ TBL_NBR_SOUCOUPES3
  	dw		vague11s,vague11e,soucoupe_3,soucoupe_4,soucoupe_5,soucoupe_6,0
  	dw		vague12s,vague12e,soucoupe_1,soucoupe_2,soucoupe_5,soucoupe_6,0
 
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L5_A
 	dw		vague13s,vague13e,soucoupe_1,soucoupe_3,soucoupe_5,0
  	dw		vague14s,vague14e,soucoupe_3,soucoupe_4,soucoupe_5,0
  	dw		vague15s,vague15e,soucoupe_2,soucoupe_4,soucoupe_6,0
@@ -409,6 +415,8 @@ TBL_NBR_SOUCOUPES3
  	dw		vague21s,vague21e,soucoupe_1,soucoupe_2,soucoupe_5,soucoupe_6,0
  	dw		vague22s,vague22e,soucoupe_1,soucoupe_2,soucoupe_3,soucoupe_5,0
  	dw		vague23s,vague23e,soucoupe_2,soucoupe_4,soucoupe_5,soucoupe_6,0
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L5_B
  	dw		vague24s,vague24e,soucoupe_1,soucoupe_3,soucoupe_4,soucoupe_5,0
 
 	dw		vague25s,vague25e,soucoupe_1,soucoupe_4,soucoupe_5,soucoupe_6,0
@@ -496,6 +504,8 @@ TBL_NBR_SOUCOUPES3
  	dw		vague11s,vague11e,soucoupe_3,soucoupe_4,soucoupe_5,soucoupe_6,0
  	dw		vague12s,vague12e,soucoupe_1,soucoupe_2,soucoupe_5,soucoupe_6,0
 
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L6_A
 	dw		vague13s,vague13e,soucoupe_1,soucoupe_3,soucoupe_5,soucoupe_6,0
  	dw		vague14s,vague14e,soucoupe_3,soucoupe_4,soucoupe_5,0
  	dw		vague15s,vague15e,soucoupe_2,soucoupe_4,soucoupe_6,0
@@ -509,6 +519,8 @@ TBL_NBR_SOUCOUPES3
  	dw		vague21s,vague21e,soucoupe_1,soucoupe_2,soucoupe_5,soucoupe_6,0
  	dw		vague22s,vague22e,soucoupe_1,soucoupe_2,soucoupe_3,soucoupe_5,0
  	dw		vague23s,vague23e,soucoupe_2,soucoupe_4,soucoupe_5,soucoupe_6,0
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L6_B
  	dw		vague24s,vague24e,soucoupe_1,soucoupe_3,soucoupe_4,soucoupe_5,0
 
 	dw		vague25s,vague25e,soucoupe_5,soucoupe_6,0
@@ -602,6 +614,8 @@ TBL_NBR_SOUCOUPES3
  	dw		vague11s,vague11e,soucoupe_3,soucoupe_4,soucoupe_5,soucoupe_6,0
  	dw		vague12s,vague12e,soucoupe_1,soucoupe_2,soucoupe_5,soucoupe_6,0
 
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L7_A
 	dw		vague13s,vague13e,soucoupe_2,soucoupe_3,soucoupe_4,soucoupe_5,soucoupe_6,0
  	dw		vague14s,vague14e,soucoupe_1,soucoupe_2,soucoupe_3,soucoupe_4,soucoupe_6,0
  	dw		vague15s,vague15e,soucoupe_2,soucoupe_3,soucoupe_4,soucoupe_5,soucoupe_6,0
@@ -615,6 +629,8 @@ TBL_NBR_SOUCOUPES3
  	dw		vague21s,vague21e,soucoupe_1,soucoupe_2,soucoupe_5,soucoupe_6,0
  	dw		vague22s,vague22e,soucoupe_1,soucoupe_2,soucoupe_3,soucoupe_5,0
  	dw		vague23s,vague23e,soucoupe_2,soucoupe_4,soucoupe_5,soucoupe_6,0
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L7_B
  	dw		vague24s,vague24e,soucoupe_1,soucoupe_3,soucoupe_4,soucoupe_5,0
 
 	dw		vague25s,vague25e,soucoupe_2,soucoupe_3,soucoupe_4,soucoupe_5,0
@@ -735,6 +751,8 @@ TBL_NBR_SOUCOUPES3
  	dw		vague33s,vague33e,soucoupe_1,soucoupe_2,soucoupe_3,soucoupe_4,soucoupe_5,soucoupe_6,0
  	dw		vague34s,vague34e,soucoupe_1,soucoupe_2,soucoupe_3,soucoupe_4,soucoupe_5,soucoupe_6,0
  	dw		vague35s,vague35e,soucoupe_1,soucoupe_2,soucoupe_3,soucoupe_4,soucoupe_5,soucoupe_6,0
+; ----> un mini boss arrive juste avant cette vague (voir Tbl_apparitions_miniboss)
+MINIBOSS_L8
  	dw		vague36s,vague36e,soucoupe_1,soucoupe_2,soucoupe_3,soucoupe_4,soucoupe_5,soucoupe_6,0
 	dw		#FFFF
 

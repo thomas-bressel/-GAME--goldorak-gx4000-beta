@@ -163,6 +163,9 @@ Update_MiniBoss
 	ret
 ; sa mort : on éteint tout, on efface ses évènements et les vagues reprennent
 MiniBoss_Est_Mort
+	ld		a,(flag_miniboss)
+	cp		a,3					; 3 = le mini boss 2 doit prendre la suite
+	push	af
 	xor		a
 	ld		(flag_miniboss),a
 	ld		(flag_boss),a
@@ -188,6 +191,11 @@ MiniBoss_efface_events
 	ld		(hl),a
 	inc		hl
 	djnz	MiniBoss_efface_events
+	pop		af
+	jr		nz,MiniBoss_pas_de_suivant
+	ld		a,2						; powerup_ROM fera arriver le mini boss 2 au prochain tour
+	ld		(flag_miniboss),a
+MiniBoss_pas_de_suivant
 ; l'explosion s'est servie des registres secondaires, qui contiennent le score pendant le jeu :
 ; on les recharge comme au début d'un level (on est encore dans le jeu secondaire ici)
 	ld		a,(Counter_score+4)

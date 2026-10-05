@@ -34,6 +34,10 @@ powerup_ROM
 ;       est appelée à chaque tour de boucle pendant un level (pas pendant l'arrimage ni dans l'espace,
 ;       qui gardent leur vitesse) et qu'il ne reste plus de place en RAM pour un nouvel appel.
 	call	vitesse_scroll_selon_goldorak
+; ----> AJOUT : level 8, le mini boss 1 vient de mourir (flag_miniboss = 2) : le mini boss 2 prend la suite
+	ld		a,(flag_miniboss)
+	cp		a,2
+	call	z,mini_boss_2_arrive
 	ld	a,(etp_powerup)
 	cp	a,0
 	jp	z,init_powerup
