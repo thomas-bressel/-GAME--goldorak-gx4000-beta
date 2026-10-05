@@ -77,9 +77,9 @@ SCROLL_FAST_RETARD_VIDEO		equ	48
 ;       goldorak avance de 4 lignes par pas : SLOW = tout en bas avec 3 pas de marge (Y 191 à 179),
 ;       NORMAL = les 6 pas juste au dessus (Y 175 à 155), FAST = les 6 pas suivants (Y 151 à 131),
 ;       VERY_FAST = tout le haut de l'écran (Y 127 à 7).
-SCROLL_POSY_NORMAL				equ	176
-SCROLL_POSY_FAST				equ	152
-SCROLL_POSY_VERY_FAST			equ	128
+SCROLL_POSY_NORMAL				equ	166
+SCROLL_POSY_FAST				equ	142
+SCROLL_POSY_VERY_FAST			equ	108
 ; ----> BUG : avec 112 (#70) le retard vidéo ne prend que 2 valeurs, #70 puis #00 : le décor avance de
 ;       7 lignes, puis 1, puis 7, puis 1... (4 lignes par trame en moyenne mais ça tremble).
 ; ----> CORRECTION : 64 (#40) -> #70 puis #30 : 4 lignes à chaque trame. Même vitesse moyenne, même
