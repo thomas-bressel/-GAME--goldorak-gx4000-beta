@@ -41,6 +41,8 @@ TBL_NBR_SOUCOUPES
 	dw		vague2s,vague2e,soucoupe_5,0
 
  	dw		vague3s,vague3e,soucoupe_1,soucoupe_4,0
+; ----> le mini boss arrive juste avant cette vague (voir mini_boss_arrive)
+MINIBOSS_LEVEL_1
  	dw		vague4s,vague4e,soucoupe_3,soucoupe_6,0
  	dw		vague5s,vague5e,soucoupe_2,soucoupe_3,0
  	dw		vague6s,vague6e,soucoupe_1,soucoupe_6,0

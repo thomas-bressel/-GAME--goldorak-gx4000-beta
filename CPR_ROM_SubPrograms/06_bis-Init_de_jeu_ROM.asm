@@ -289,6 +289,7 @@ ld  (pointer_tbl_retournement),hl
 	ld		de,event_fade_out+1
 	ld		bc,40
 	LDIR	
+	ld		(flag_miniboss),a		; ----> AJOUT : pas de mini boss au début d'un level
 ; on éteinds les sprites hard
 	ld		(SPRH6_ZOOM),a : ld	 (valeur_zoom_sprh6),a
 	ld		(SPRH7_ZOOM),a : ld	 (valeur_zoom_sprh7),a

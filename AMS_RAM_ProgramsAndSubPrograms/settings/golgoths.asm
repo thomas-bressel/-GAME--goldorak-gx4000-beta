@@ -87,6 +87,14 @@ CADANCE_TIR_4_GOLGOTH3			equ		4
 
 
 ; le golgoth doit être touché 16 fois, avec une arme de niveau 1
+; ----> AJOUT : mini boss (4 sprites hard en bank 11, écrits par Tools/sprites_vers_bank.py)
+;       chaque image = 4 sprites (haut gauche, haut droite, bas gauche, bas droite) + 1 missile
+MINIBOSS_SPRH_ADR_ROM			equ		#C000
+MINIBOSS_SPRH_ADR_ROM_ANIM2		equ		#C500
+MINIBOSS_PV						equ		PV_GOLGOTH_1/2		; moitié moins que le boss du level
+MINIBOSS_POSY					equ		40
+MINIBOSS_VITESSE				equ		12
+MINIBOSS_NBR_PAS				equ		48
 PV_GOLGOTH_1		equ		16                  
 
 ; le golgoth doit être touché 40 fois avec une arme de niveau 1 (missile gamma)

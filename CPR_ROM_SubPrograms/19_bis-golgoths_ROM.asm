@@ -8,6 +8,15 @@
 
 golgoth_2_ROM
 golgoth_1_ROM
+; ----> AJOUT : mini boss. Il se sert de la routine du golgoth 1. Tant qu'il est là (explosion comprise)
+;       on retire à chaque tour ce que compteur_evenements vient d'ajouter au compteur des vagues :
+;       le compteur n'avance plus, la vague suivante ne partira qu'après sa mort.
+	ld		a,(flag_miniboss)
+	or		a
+	jr		z,golgoth_1_ROM_suite
+	ld		hl,counter_poid_faible
+	dec		(hl)
+golgoth_1_ROM_suite
 	ld		a,(EtpGolgoth)
 	cp		a,0
 	jp		z,Anim_Golgoth
@@ -110,10 +119,89 @@ golgoth_1_ROM
 									ret
 										Reinit_PointeurGolgoth_1
 											ld		hl,Tbl_Gologoth1
+; ----> AJOUT : mini boss, il reboucle sur son tableau à lui
+	ld		a,(flag_miniboss)
+	or		a
+	jr		z,Reinit_PointeurGolgoth_suite
+	ld		hl,Tbl_MiniBoss
+Reinit_PointeurGolgoth_suite
 											ld		(Pointeur_TblGolgoth_1),hl
 											ret
 ; ///////////////////////////////////////////////////////////////////////////////////////////
 ; ////////////////////////////////////////////////////////////////////////////////////////////
+; //////////////////////////////////////////////////////////////////
+; ////////////////////////////  MINI BOSS  /////////////////////////
+; //////////////////////////////////////////////////////////////////
+; ----> AJOUT : mini boss de 4 sprites hard (2 x 2) qui passe entre 2 vagues de soucoupes. Il arrive
+;       par mini_boss_arrive (fin de vague), se déplace et tire avec les routines du golgoth 1.
+; son déplacement : dw vitesse X, vitesse Y, nombre de pas  (très vite de gauche à droite)
+Tbl_MiniBoss
+	dw		MINIBOSS_VITESSE,0,MINIBOSS_NBR_PAS
+	dw		-MINIBOSS_VITESSE,0,MINIBOSS_NBR_PAS
+	dw		#FFFF
+; ses 4 sprites : 6 et 7 en haut, 8 et 9 en dessous
+Update_MiniBoss
+	pop		de
+	inc		de
+	inc		de
+	push	de
+	rst		ASIC_CONNEXION
+	ld		hl,(posX_Golgoth)
+	ld		(SPRH6_X),hl
+	ld		(SPRH8_X),hl
+	ld		de,32
+	add		hl,de
+	ld		(SPRH7_X),hl
+	ld		(SPRH9_X),hl
+	ld		hl,(posY_Golgoth)
+	ld		(SPRH6_Y),hl
+	ld		(SPRH7_Y),hl
+	ld		de,16
+	add		hl,de
+	ld		(SPRH8_Y),hl
+	ld		(SPRH9_Y),hl
+	ret
+; sa mort : on éteint tout, on efface ses évènements et les vagues reprennent
+MiniBoss_Est_Mort
+	xor		a
+	ld		(flag_miniboss),a
+	ld		(flag_boss),a
+	ld		(EtpGolgoth),a
+	ld		(VitesseAnimGolgoth),a
+	ld		(Etp_Anim_Golgoth),a
+	ld		(flag_MortGolgoth),a
+	ld		(Etp_ExploseGolgoth),a
+	ld		(Compteur_DistanceGolgoth_1),a
+	ld		(SPRH6_ZOOM),a : ld	 (valeur_zoom_sprh6),a
+	ld		(SPRH7_ZOOM),a : ld	 (valeur_zoom_sprh7),a
+	ld		(SPRH8_ZOOM),a : ld	 (valeur_zoom_sprh8),a
+	ld		(SPRH9_ZOOM),a : ld	 (valeur_zoom_sprh9),a
+	ld		(SPRH10_ZOOM),a : ld	 (valeur_zoom_sprh10),a
+	ld		(SPRH11_ZOOM),a : ld	 (valeur_zoom_sprh11),a
+	ld		(SPRH12_ZOOM),a : ld	 (valeur_zoom_sprh12),a
+	ld		(SPRH13_ZOOM),a : ld	 (valeur_zoom_sprh13),a
+	ld		(SPRH14_ZOOM),a : ld	 (valeur_zoom_sprh14),a
+	ld		(SPRH15_ZOOM),a : ld	 (valeur_zoom_sprh15),a
+	ld		hl,event_golgoth
+	ld		b,31
+MiniBoss_efface_events
+	ld		(hl),a
+	inc		hl
+	djnz	MiniBoss_efface_events
+; l'explosion s'est servie des registres secondaires, qui contiennent le score pendant le jeu :
+; on les recharge comme au début d'un level (on est encore dans le jeu secondaire ici)
+	ld		a,(Counter_score+4)
+	ld		c,a
+	ld		a,(Counter_score+3)
+	ld		d,a
+	ld		a,(Counter_score+2)
+	ld		e,a
+	ld		a,(Counter_score+1)
+	ld		h,a
+	ld		a,(Counter_score)
+	ld		l,a
+	exx
+	ret
 Update_Golgoth
 	pop		de
 	inc		de
@@ -211,6 +299,10 @@ Explose_Golgoth
 					jp		ASIC_DECONNEXION
 							
 						GolgothMort
+; ----> AJOUT : la mort du mini boss ne termine pas le level, on retourne aux vagues
+	ld		a,(flag_miniboss)
+	or		a
+	jp		nz,MiniBoss_Est_Mort
 							call Un_Golgoth_Est_Mort
 						
 							ret

@@ -307,5 +307,70 @@ fin_de_la_vague_ROM
 	ld		hl,Tbl_VALEUR_TIMER_soucoupes
 	ld		bc,6
 	LDIR
+; ----> AJOUT : mini boss. Si la vague suivante est celle qui porte le label MINIBOSS_LEVEL_1 dans
+;       waves.asm, le mini boss arrive d'abord (pour le déplacer il suffit de déplacer le label).
+	ld		hl,(Pointeur_TblNombreDeSoucoupes)
+	ld		de,MINIBOSS_LEVEL_1
+	or		a
+	sbc		hl,de
+	ret		nz
+mini_boss_arrive
+	xor		a
+	ld		(EtpMissileG1_1),a : ld (flag_updateMissileG1_1),a
+	ld		(EtpMissileG1_2),a : ld (flag_updateMissileG1_2),a
+	ld		(EtpMissileG1_3),a : ld (flag_updateMissileG1_3),a
+	ld		(EtpMissileG1_4),a : ld (flag_updateMissileG1_4),a
+	ld		(EtpGolgoth),a
+	ld		(VitesseAnimGolgoth),a
+	ld		(Etp_Anim_Golgoth),a
+	ld		(flag_MortGolgoth),a
+	ld		(Etp_ExploseGolgoth),a
+	ld		(Compteur_DistanceGolgoth_1),a
+	inc		a
+	ld		(flag_boss),a
+	ld		(flag_miniboss),a
+; ses évènements dans la boucle : les mêmes que le golgoth 1, sauf ses sprites qui sont en bank 11
+	ld		hl,Tbl_events_miniboss
+	ld		de,event_golgoth
+	ld		bc,30
+	LDIR
+	ld		a,7
+	ld		(id_soucoupe),a
+	ld		a,MINIBOSS_PV
+	ld		(point_vie_golgoth),a
+	ld		hl,MINIBOSS_SPRH_ADR_ROM
+	ld		(GolgothAdrRom),hl
+	ld		(Tbl_Golgoth_anim+2),hl
+	ld		hl,MINIBOSS_SPRH_ADR_ROM_ANIM2
+	ld		(Tbl_Golgoth_anim),hl
+	ld		hl,SPRH6_ADR
+	ld		(GolgothSprh),hl
+	ld		hl,#400
+	ld		(GolgothLongeur),hl
+	ld		hl,Tbl_MiniBoss
+	ld		(Pointeur_TblGolgoth_1),hl
+	ld		hl,Update_MiniBoss
+	ld		(PointeurUpdateGolgoth),hl
+	ld		hl,0
+	ld		(posX_Golgoth),hl
+	ld		hl,MINIBOSS_POSY
+	ld		(posY_Golgoth),hl
+	ld		a,zoom_mode0_1
+	ld		(SPRH6_ZOOM),a : ld	 (valeur_zoom_sprh6),a
+	ld		(SPRH7_ZOOM),a : ld	 (valeur_zoom_sprh7),a
+	ld		(SPRH8_ZOOM),a : ld	 (valeur_zoom_sprh8),a
+	ld		(SPRH9_ZOOM),a : ld	 (valeur_zoom_sprh9),a
+	ret
+Tbl_events_miniboss
+	db	_CALL : dw golgoth_1
+	db	_CALL : dw Update_Golgoth_6
+	db	_CALL : dw missileG1_1
+	db	_CALL : dw Update_missileG1_1
+	db	_CALL : dw missileG1_2
+	db	_CALL : dw Update_missileG1_2
+	db	_CALL : dw missileG1_3
+	db	_CALL : dw Update_missileG1_3
+	db	_CALL : dw missileG1_4
+	db	_CALL : dw Update_missileG1_4
 	ret 
 
