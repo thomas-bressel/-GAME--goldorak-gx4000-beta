@@ -574,24 +574,27 @@ affiche_ecrans_de_fin
 
 
 
-change_musique
-	di
-	call	PLY_AKG_Stop
-	call	music_off
-	ld 		hl,Music
-	ld		a,(no_de_la_musique)
-	inc		a
-	ld		(no_de_la_musique),a
-	cp		a,MUCIS_NO_MUSIC
-	call	z,reinit_no_musique
-	call 	PLY_AKG_Init
-	call	music_on
-	ei
-	jp	retour_test_de_CPC_plus
-			reinit_no_musique
-			xor 	a
-			ld	(no_de_la_musique),a
-			ret
+; ----> RAM : change_musique (et reinit_no_musique) n'est appelée nulle part dans le source : aucun CALL,
+;       aucun JP, et le code juste au dessus se termine par un JP. Mise en commentaire pour libérer
+;       37 octets dans le programme en RAM, qui est plein.
+;change_musique
+;	di
+;	call	PLY_AKG_Stop
+;	call	music_off
+;	ld 		hl,Music
+;	ld		a,(no_de_la_musique)
+;	inc		a
+;	ld		(no_de_la_musique),a
+;	cp		a,MUCIS_NO_MUSIC
+;	call	z,reinit_no_musique
+;	call 	PLY_AKG_Init
+;	call	music_on
+;	ei
+;	jp	retour_test_de_CPC_plus
+;			reinit_no_musique
+;			xor 	a
+;			ld	(no_de_la_musique),a
+;			ret
 
 
 
