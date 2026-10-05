@@ -14,6 +14,27 @@ fireA
 	bit		5,a
 	jp		z,Init_Retournement
 
+; ----> BUG : on arrive ici par un JP (pas de valeur de retour dans la pile). Si l'étape de l'arme
+;       choisie n'était pas à zéro (arme coupée en plein vol par le power up, un changement d'arme...)
+;       la routine de l'arme partait directement sur une étape "en vol" :
+;       - missiles gamma, cornofulgure, pulvonium : elles finissent par un RET -> le Z80 dépile une
+;         adresse qui n'existe pas -> plantage direct.
+;       - planitron, fulguropoing, clavicogyres : elles bouclaient sur elles même dans la même frame.
+; ----> CORRECTION : flag_fireA à zéro = plus aucun tir en vol. On remet donc toutes les étapes
+;       (etp_arme1 à etp_arme7 se suivent en mémoire) et l'évènement à zéro avant de tirer :
+;       l'arme démarre toujours par son init.
+	xor		a
+	ld		hl,etp_arme1
+	ld		b,7
+.raz_etapes
+	ld		(hl),a
+	inc		hl
+	djnz	.raz_etapes
+	ld		hl,event_arme_fireA
+	ld		(hl),a : inc hl
+	ld		(hl),a : inc hl
+	ld		(hl),a
+
 	ld		a,(sfx_arme)
     ld 		c,1 ;channel (0-2)
     ld 		b,SFX_VOLUME ;Inverted volume (0-16)
@@ -255,7 +276,15 @@ init_planitron
 	ld		a,_JP
 	; FIX END
 	ld		(event_arme_fireA),a
-	ld		hl,(adr_type_arme)
+; ----> BUG (le même dans les 6 init d'armes) : l'évènement était écrit avec ld hl,(adr_type_arme).
+;       Si adr_type_arme ne correspondait pas à l'arme en cours d'init, on se retrouvait avec un JP
+;       vers une routine qui finit par un RET, ou un CALL vers une routine qui finit par un JP :
+;       la pile se décalait à chaque frame jusqu'au plantage.
+;       Ca arrivait après être passé par le fulguropoing : son animation de retour remettait
+;       adr_type_arme sur les clavicogyres plusieurs secondes après, quelle que soit l'arme choisie.
+; ----> CORRECTION : chaque init écrit en dur l'adresse de SA routine, le _CALL ou le _JP posé
+;       juste au dessus correspond donc toujours à la routine visée.
+	ld		hl,arme_planitron
 	ld		(event_arme_fireA+1),hl													; on copie de puis la ROM vers l'ASIC
 	RST		ASIC_DECONNEXION
 	ld		a,4
@@ -418,7 +447,7 @@ init_planitron2
 	ld		a,_JP
 	; FIX END
 	ld		(event_arme_fireA),a
-	ld		hl,(adr_type_arme)
+	ld		hl,arme_planitron2			; ----> CORRECTION : adresse en dur (voir init_planitron)
 	ld		(event_arme_fireA+1),hl													; on copie de puis la ROM vers l'ASIC
 	RST		ASIC_DECONNEXION
 	ld		a,4
@@ -594,7 +623,7 @@ init_cornofulgure
 	call	rom_off
 	ld		a,_CALL
 	ld		(event_arme_fireA),a
-	ld		hl,(adr_type_arme)
+	ld		hl,arme_cornofulgure		; ----> CORRECTION : adresse en dur (voir init_planitron)
 	ld		(event_arme_fireA+1),hl													; on copie de puis la ROM vers l'ASIC
 	RST		ASIC_DECONNEXION
 	xor  a
@@ -876,7 +905,11 @@ arme_fulguro_poing
 	cp		a,3
 	jr		z,fulguro_poing_fin
 	inc		a:ld (etp_arme6),a
-	jp 		retour_test_des_tirs
+; ----> BUG : on arrive ici par le JP de event_arme_fireA mais on repartait sur retour_test_des_tirs :
+;       on sautait le test du clavier (pause...) et on rendait la main aux directions même quand les
+;       commandes de goldorak étaient coupées (event_test_de_goldorak effacé).
+; ----> CORRECTION : on reprend la boucle juste après l'évènement, comme les autres étapes
+	jp 		retour_event_arme_fireA
 
 init_fulguro_poing
 	inc 	a:ld (etp_arme6),a										; on incrémente les étapes de l'arme
@@ -888,7 +921,7 @@ init_fulguro_poing
 	; FIX END
 
 	ld		(event_arme_fireA),a
-	ld		hl,(adr_type_arme)
+	ld		hl,arme_fulguro_poing		; ----> CORRECTION : adresse en dur (voir init_planitron)
 	ld		(event_arme_fireA+1),hl
 	ld		a,13
 	ld		(SPRH4_ZOOM),a
@@ -982,7 +1015,7 @@ init_clavicogyres
 	ld		a,_JP
 	; FIX END
 	ld		(event_arme_fireA),a
-	ld		hl,(adr_type_arme)
+	ld		hl,arme_clavicogyres		; ----> CORRECTION : adresse en dur (voir init_planitron)
 	ld		(event_arme_fireA+1),hl													; on copie de puis la ROM vers l'ASIC
 	RST		ASIC_DECONNEXION
 	ld		a,4
@@ -1145,8 +1178,7 @@ init_pulvonium
 	call	rom_off
 	ld		a,_CALL
 	ld		(event_arme_fireA),a
-	; ld		hl,arme_pulvonium
-	ld		hl,(adr_type_arme)
+	ld		hl,arme_pulvonium			; ----> CORRECTION : adresse en dur (voir init_planitron)
 	ld		(event_arme_fireA+1),hl													; on copie de puis la ROM vers l'ASIC
 	RST		ASIC_DECONNEXION
 	xor  a

@@ -3,7 +3,25 @@ fin_attente_fireB_ROM
     ld 		c,1 					;channel (0-2)
     ld 		b,SFX_VOLUME 					;Inverted volume (0-16)
     call 	PLY_AKG_PlaySoundEffect
-	
+
+; ----> BUG : en changeant d'arme pendant qu'un tir était encore en vol, l'état des armes devenait
+;       incohérent :
+;       - retour sur les missiles gamma (affiche_boutton_1) : l'évènement du tir était effacé mais
+;         ni flag_fireA ni l'étape de l'arme -> fire A ne répondait plus du tout, jusqu'à ce que
+;         goldorak se fasse toucher. Avec les missiles gamma seuls (début du jeu) il suffisait de
+;         tirer puis d'appuyer sur fire B.
+;       - les autres boutons ne remettaient rien à zéro : le tir de l'ancienne arme continuait
+;         avec la force et les collisions de la nouvelle (fin_armes se base sur id_arme).
+; ----> CORRECTION : une seule arme à la fois. Changer d'arme annule proprement le tir en vol
+;       (flag, étapes, évènement et sprites hard 4 et 5), quelle que soit l'arme choisie.
+	call	raz_armes
+; ----> BUG : l'animation des poings qui rentrent n'était lancée que si l'arme suivante était les
+;       clavicogyres. Sans eux, goldorak gardait les poings sortis avec une autre arme.
+; ----> CORRECTION : dès que l'on quitte le fulguropoing, quelle que soit l'arme suivante
+	ld		a,(id_arme)
+	cp		a,ID_FULGUROPOING
+	call	z,on_quitte_le_fulguro_poing
+
 	xor		a
 	ld		(counter_fireB),a
 	ld		a,(id_arme)
@@ -39,19 +57,28 @@ fin_attente_fireB_ROM
 		call	bcl_affiche_bouton
 		ld		hl,arme_missiles_gamma
 		ld		(adr_type_arme),hl
-		ld		a,FORCE_MISSILES_GAMMA
+; ----> BUG : en revenant sur les missiles gamma on remettait toujours la force et le bruitage du
+;       niveau 1, même avec un power up en cours : les missiles puissance 2 ou 3 ne faisaient plus
+;       que 1 point de dégat.
+; ----> CORRECTION : la force et le bruitage suivent le niveau de power up en cours
+		ld		b,FORCE_MISSILES_GAMMA
+		ld		c,SFX_GAMMA_LVL1
+		ld		a,(flag_PowerUP)
+		or		a
+		jr		z,.force_gamma_ok
+		ld		b,FORCE_MISSILES_GAMMA2
+		ld		c,SFX_GAMMA_LVL2
+		dec		a
+		jr		z,.force_gamma_ok
+		ld		b,FORCE_MISSILES_GAMMA3
+		ld		c,SFX_GAMMA_LVL3
+	.force_gamma_ok
+		ld		a,b
 		ld		(points_attaque),a
-		ld 		a,SFX_GAMMA_LVL1	 ;Sound effect number (>=1))
+		ld 		a,c	 ;Sound effect number (>=1))
 		ld		(sfx_arme),a
-											xor 	a
-									ld		(event_arme_fireA),a
-									ld		(event_arme_fireA+1),a
-									ld		(event_arme_fireA+2),a
-									ld		(SPRH4_ZOOM),a
-									ld		(SPRH5_ZOOM),a
-
-									ld		(valeur_zoom_sprh4),a
-									ld		(valeur_zoom_sprh5),a
+; (l'effacement de event_arme_fireA et des zoom qui était ici est maintenant fait par raz_armes
+;  en haut de la routine, avec flag_fireA et les étapes qui avaient été oubliés)
 		ret
 		affiche_boutton_2
 			ld		a,(ArmesDisponible)
@@ -138,6 +165,7 @@ fin_attente_fireB_ROM
 							ld		(event_arme_fireB),a
 							ld		hl,pre_init_fulguro_poing
 							ld		(event_arme_fireB+1),hl
+							call	raz_anim_fulguro_poing		; ----> CORRECTION : l'animation repart de sa 1ère étape
 							ld		a,FORCE_FULGURO_POINGS
 							ld		(points_attaque),a
 							ld 		a,SFX_FULGORO_POINT	 ;Sound effect number (>=1))
@@ -159,11 +187,10 @@ fin_attente_fireB_ROM
 							call	bcl_affiche_bouton
 
 
-								ld		a,_CALL
-								ld		(event_arme_fireB),a
-								ld		hl,pre_init_fulguro_poing_retour
-								ld		(event_arme_fireB+1),hl
-
+; ----> BUG : l'animation des poings qui rentrent était lancée ici, donc aussi quand on arrivait
+;       sur les clavicogyres sans avoir le fulguropoing (goldorak sortait les poings une frame).
+; ----> CORRECTION : elle est lancée en haut de fin_attente_fireB_ROM, uniquement quand l'arme
+;       que l'on quitte est le fulguropoing (voir on_quitte_le_fulguro_poing)
 
 								ld		hl,arme_clavicogyres
 								ld		(adr_type_arme),hl
@@ -320,12 +347,45 @@ pre_init_fulguro_poing_retour_ROM
 						ld	(event_arme_fireB+1),a
 						ld	(event_arme_fireB+2),a
 						ld	(flag_fulguro),a
-						ld		hl,arme_clavicogyres
-						ld		(adr_type_arme),hl
+; ----> BUG : c'est ici que partaient les plantages des armes. A la fin de l'animation on forçait
+;       adr_type_arme sur les clavicogyres. Or quand on faisait défiler les armes en gardant fire B
+;       appuyé, cette animation se terminait jusqu'à 5 secondes plus tard (voir raz_anim_fulguro_poing) :
+;       le joueur était déjà sur une autre arme. Au tir suivant l'évènement de tir recevait donc
+;       l'adresse des clavicogyres avec le _CALL du cornofulgure ou du pulvonium -> la pile se
+;       décalait de 2 octets à chaque frame -> plantage au bout de quelques tirs.
+; ----> CORRECTION : on ne touche plus à adr_type_arme, affiche_boutton_6 l'a déjà renseigné.
+;       (et les init des armes n'utilisent plus adr_type_arme, voir 09-armes_fireA.asm)
+
+; ----> BUG : on cachait les sprites hard 4 et 5 même si un tir de la nouvelle arme était déjà parti
+; ----> CORRECTION : seulement si aucun tir n'est en vol
+						ld		a,(flag_fireA)
+						or		a
+						ret		nz
+						RST		ASIC_CONNEXION
 						ld		hl,SPRH_ARMES_GOLDORAK_CACHER
 						ld		(SPRH4_X),hl
 						ld		(SPRH4_Y),hl
 						ld		(SPRH5_X),hl
 						ld		(SPRH5_Y),hl
 						ret
+
+; //////////////////////////////////////////////////////////////////
+; on arrive ici quand on quitte le fulguropoing pour une autre arme
+on_quitte_le_fulguro_poing
+	ld		a,_CALL
+	ld		(event_arme_fireB),a
+	ld		hl,pre_init_fulguro_poing_retour
+	ld		(event_arme_fireB+1),hl
+
+; ----> BUG : les deux animations des poings (ils sortent : 1 étape toutes les 4 frames, ils
+;       rentrent : 1 étape par frame) se partagent counter_pre_poing et etp_pre_poing sans les
+;       remettre à zéro. En changeant d'arme pendant que les poings sortaient, le compteur était
+;       déjà au delà de 1 : l'animation de retour attendait qu'il refasse un tour complet
+;       (255 frames, soit 5 secondes) avant de démarrer.
+; ----> CORRECTION : chaque animation repart de zéro
+raz_anim_fulguro_poing
+	xor		a
+	ld		(counter_pre_poing),a
+	ld		(etp_pre_poing),a
+	ret
 			

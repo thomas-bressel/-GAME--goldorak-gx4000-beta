@@ -84,10 +84,15 @@ boucle_couleurs
 
 
 			call	fin_missiles_gamma2
-			ld		a,FORCE_MISSILES_GAMMA2
-			ld		(points_attaque),a
-			ld 		a,SFX_GAMMA_LVL2
-			ld		(sfx_arme),a
+; ----> BUG : la force et le bruitage des missiles gamma étaient écrits ici quelle que soit l'arme
+;       choisie. Avec le planitron, le cornofulgure... en main, l'arme se retrouvait avec la force
+;       des missiles gamma (1, 2 ou 4) jusqu'à ce qu'on la re sélectionne : les golgoths
+;       devenaient interminables à détruire.
+; ----> CORRECTION : seulement si ce sont bien les missiles gamma qui sont sélectionnés
+;       (même correction aux 3 autres changements de niveau de power up plus bas)
+			ld		b,FORCE_MISSILES_GAMMA2
+			ld		c,SFX_GAMMA_LVL2
+			call	maj_puissance_gamma
 
 			xor 	a
 			ld 		(etp_arme1),a
@@ -129,10 +134,9 @@ boucle_couleurs
 					ld		a,2
 					ld		(etp_powerup),a
 					call	fin_missiles_gamma2
-					ld		a,FORCE_MISSILES_GAMMA3
-					ld		(points_attaque),a
-					ld 		a,SFX_GAMMA_LVL3
-					ld		(sfx_arme),a
+					ld		b,FORCE_MISSILES_GAMMA3
+					ld		c,SFX_GAMMA_LVL3
+					call	maj_puissance_gamma
 			xor 	a
 			ld 		(etp_arme1),a
 					ret
@@ -183,10 +187,9 @@ reinit_compteur_powerup_niv1
 	inc		a
 	ld		(etp_powerup),a
 	call	fin_missiles_gamma2
-	ld		a,FORCE_MISSILES_GAMMA
-	ld		(points_attaque),a
-	ld 		a,SFX_GAMMA_LVL1
-	ld		(sfx_arme),a
+	ld		b,FORCE_MISSILES_GAMMA
+	ld		c,SFX_GAMMA_LVL1
+	call	maj_puissance_gamma
 			xor 	a
 			ld 		(etp_arme1),a
 	ret
@@ -228,32 +231,47 @@ reinit_compteur_powerup_niv2
 	ld		a,1
 	ld		(flag_PowerUP),a
 
-	ld		a,FORCE_MISSILES_GAMMA3
+; ----> BUG : en redescendant du power up 2 au power up 1 on gardait la force et le bruitage des
+;       missiles gamma puissance 3 alors que ce sont les missiles puissance 2 qui sont tirés.
+; ----> CORRECTION : force et bruitage de la puissance 2
+	ld		b,FORCE_MISSILES_GAMMA2
+	ld		c,SFX_GAMMA_LVL2
+	call	maj_puissance_gamma
+	ret
+
+
+; en entrée : B = force des missiles gamma, C = leur bruitage
+maj_puissance_gamma
+	ld		a,(id_arme)
+	cp		a,ID_MISSILES_GAMMA
+	ret		nz
+	ld		a,b
 	ld		(points_attaque),a
-	ld 		a,SFX_GAMMA_LVL3
+	ld		a,c
 	ld		(sfx_arme),a
 	ret
 
 
 fin_missiles_gamma2
-	call 	ASIC_CONNEXION
+; ----> BUG : cette routine coupe le tir en vol à chaque changement de niveau de power up, mais elle
+;       ne remettait à zéro que l'étape des missiles gamma (etp_arme2). Si c'était un planitron, un
+;       fulguropoing ou des clavicogyres qui étaient en vol, leur étape restait "en vol" avec
+;       flag_fireA à zéro : au tir suivant l'arme repartait du milieu de sa course.
+;       De plus avec le fulguropoing en main les poings disparaissaient de goldorak (zoom à zéro).
+; ----> CORRECTION : remise à zéro complète de toutes les armes (raz_armes), et on rallume les
+;       poings si c'est le fulguropoing qui est sélectionné.
+	call	raz_armes
+	ld		a,(id_arme)
+	cp		a,ID_FULGUROPOING
+	call	z,on_gere_fulguro_point
+; ----> ATTENTION : PLY_AKG_StopSoundEffectFromChannel attend le numéro du canal dans A et pas dans C
+;       (voir PlayerAkg_SoundEffects.asm : add a,a / add a,a / add a,a puis écriture de 2 zéros
+;       à PLY_AKG_Channel1_SoundEffectData + A*8). Dans tout le jeu elle est appelée avec "ld c,n" :
+;       ça ne tient que parce que A vaut 0 (après un xor a) ou #A0 (après un RST ASIC_DECONNEXION,
+;       et #A0*8 fait 0 sur 8 bits) à chacun de ces appels : c'est donc toujours le canal 0 qui est coupé.
+;       Avec A = 3 ou plus, les 2 zéros tombent dans le code de PLY_AKG_Init qui est logé juste après
+;       les données des 3 canaux : plantage au changement de musique suivant (arrivée du golgoth).
+; ----> on garde le comportement d'origine : A = 0
 	xor		a
-	ld		(SPRH4_ZOOM),a
-	ld		(SPRH5_ZOOM),a
-	ld		(valeur_zoom_sprh4),a
-	ld 		(valeur_zoom_sprh5),a 
-	ld		(flag_fireA),a
-	ld		(etp_arme2),a
-	ld		(event_arme_fireA),a
-	ld		(event_arme_fireA+1),a
-	ld		(event_arme_fireA+2),a
-	ld		hl,SPRH_ARMES_GOLDORAK_CACHER
-	ld		(SPRH4_X),hl
-	ld		(SPRH4_Y),hl
-	ld		(SPRH5_X),hl
-	ld		(SPRH5_Y),hl
-	rst		ASIC_DECONNEXION
-	ld 		c,2   ;Channel (0-2)
 	call 	PLY_AKG_StopSoundEffectFromChannel
 	ret
-	

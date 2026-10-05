@@ -142,6 +142,14 @@ pas_de_bouton
 ; /////////////////////////////////////////////////////////////////////////////////////////////////////////
 ; /////////////////////////////////////////////////////////////////////////////////////////////////////////
 boucle_principale
+; ----> BUG : plusieurs routines appelées par un CALL depuis cette boucle en ressortent par un JP
+;       (fin_du_level, big_boss_fin_level_4, les init des armes...). A chaque fois 2 ou 4 octets
+;       restent sur la pile, qui descend petit à petit et finit par écraser les routines et les
+;       variables logées en fin de programme (#BFxx) : plantage au hasard, longtemps après la cause.
+;       En mode alcorak la boutique ne remet jamais SP en place, ça se cumulait de level en level.
+; ----> CORRECTION : cette boucle est la racine du jeu, rien n'est censé rester sur la pile quand
+;       on y revient. On la recale donc à chaque frame.
+	ld		sp,#BFFE
 	ld    b,#f5    			;adresse du port B du PPI
 .vbl
 	in    a,(c)     		;On récupère l'octet contenu sur le port dans A

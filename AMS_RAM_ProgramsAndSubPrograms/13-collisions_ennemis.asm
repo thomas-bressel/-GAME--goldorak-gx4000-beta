@@ -514,7 +514,6 @@ rip_bigboss
 
 
 fin_armes
-	RST		ASIC_CONNEXION
 	ld		a,(id_arme)
 	cp		a,ID_FULGUROPOING
 	jr		z,on_gere_fulguro_point
@@ -522,6 +521,12 @@ fin_armes
 	jr		z,on_gere_fulguro_point
 	cp 		a,ID_PULVONIUM
 	jr		z,on_gere_pulvonium
+; ----> CORRECTION : la remise à zéro complète des armes a maintenant son propre label.
+;       Elle est aussi appelée au changement d'arme (fin_attente_fireB_ROM) et au changement de
+;       niveau de power up (fin_missiles_gamma2) qui ne remettaient à zéro qu'une partie des
+;       variables (voir les commentaires là bas). En sortie l'ASIC est déconnecté, comme avant.
+raz_armes
+	RST		ASIC_CONNEXION
 	xor		a
 	ld		(SPRH4_ZOOM),a
 	ld		(SPRH5_ZOOM),a
@@ -538,6 +543,13 @@ fin_armes
 	ld		(etp_arme5),a
 	ld		(etp_arme6),a
 	ld		(etp_arme7),a
+; ----> BUG : anim_arme_a_charger n'était remis à zéro qu'à la fin naturelle d'un planitron ou des
+;       clavicogyres (le tir sort de l'écran). Quand le tir était coupé avant (il touche un ennemi,
+;       ou maintenant un changement d'arme) le flag restait à 1, 2 ou 3 : sprh_animations_arme
+;       continuait à recopier à chaque frame l'animation du planitron dans les sprites hard 4 et 5.
+;       En passant ensuite au fulguropoing, les poings étaient écrasés par les planitrons.
+; ----> CORRECTION : plus de tir en vol = plus d'animation à charger
+	ld		(anim_arme_a_charger),a
 	ld		hl,SPRH_ARMES_GOLDORAK_CACHER
 	ld		(SPRH5_X),hl
 	ld		(SPRH4_X),hl
@@ -547,6 +559,7 @@ fin_armes
 	ret
 	
 on_gere_fulguro_point
+	RST		ASIC_CONNEXION
 	ld		a,13
 	ld		(SPRH4_ZOOM),a
 	ld		(SPRH5_ZOOM),a
