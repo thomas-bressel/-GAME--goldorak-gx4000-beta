@@ -368,8 +368,8 @@ soucoupe_6
 													ld		(hl),a
 													call	rom_off
 														rst		ASIC_CONNEXION
-														ld		hl,COULEUR_BOOM_ENNEMI
-														ld		(PALETTE_BORDER),hl
+														;ld		hl,COULEUR_BOOM_ENNEMI		; ----> flash du border retiré, il ne sert plus
+														;ld		(PALETTE_BORDER),hl
 														rst		ASIC_DECONNEXION
 												
 												; /////////// TENTATIVE DE MISE EN PLACE DES BOMBES /////////////////

@@ -235,8 +235,8 @@ goldorak_touche_golgoth
 goldorak_touche
 	
 	rst		ASIC_CONNEXION
-	ld		hl,COULEUR_BOOM_ENNEMI
-	ld		(PALETTE_BORDER),hl
+	;ld		hl,COULEUR_BOOM_ENNEMI		; ----> flash du border retiré, il ne sert plus
+	;ld		(PALETTE_BORDER),hl
 	rst		ASIC_DECONNEXION
 	call	fin_armes
 
@@ -1064,8 +1064,8 @@ test_collisions_supplementaire_avec_les_Golgoths_D
 	ret
 goldorak_percute
 	rst		ASIC_CONNEXION
-	ld		hl,COULEUR_DEGAT_BORDER
-	ld		(PALETTE_BORDER),hl
+	;ld		hl,COULEUR_DEGAT_BORDER		; ----> flash du border retiré, il ne sert plus
+	;ld		(PALETTE_BORDER),hl
 	rst		ASIC_DECONNEXION
 	ld		a,SFX_DAMMAGE
 	ld 		c,2					;channel (0-2)
