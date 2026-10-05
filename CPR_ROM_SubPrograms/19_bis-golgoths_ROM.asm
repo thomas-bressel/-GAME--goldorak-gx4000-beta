@@ -149,7 +149,7 @@ Update_MiniBoss
 	ld		hl,(posX_Golgoth)
 	ld		(SPRH6_X),hl
 	ld		(SPRH8_X),hl
-	ld		de,32
+	ld		de,64				; en zoom mode 0 un sprite hard fait 64 de large (16 pixels x 4)
 	add		hl,de
 	ld		(SPRH7_X),hl
 	ld		(SPRH9_X),hl

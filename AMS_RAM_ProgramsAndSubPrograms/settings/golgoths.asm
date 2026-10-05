@@ -94,7 +94,7 @@ MINIBOSS_SPRH_ADR_ROM_ANIM2		equ		#C500
 MINIBOSS_PV						equ		PV_GOLGOTH_1/2		; moitié moins que le boss du level
 MINIBOSS_POSY					equ		40
 MINIBOSS_VITESSE				equ		12
-MINIBOSS_NBR_PAS				equ		48
+MINIBOSS_NBR_PAS				equ		40
 PV_GOLGOTH_1		equ		16                  
 
 ; le golgoth doit être touché 40 fois avec une arme de niveau 1 (missile gamma)
